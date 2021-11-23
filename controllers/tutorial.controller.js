@@ -20,7 +20,7 @@ const getPagingData = (data, page, limit) => {
 // Create and Save a new Tutorial
 exports.create = (req, res) => {
   // Validate request
-  if (!req.body.title) {
+  if (!req.body.nokta_adi) {
     res.status(400).send({
       message: "Content can not be empty!"
     });
@@ -29,9 +29,81 @@ exports.create = (req, res) => {
 
   // Create a Tutorial
   const tutorial = {
-    title: req.body.title,
-    description: req.body.description,
-    details: req.body.details,
+    nokta_adi: req.body.nokta_adi,
+    yontem: req.body.yontem,
+    alt_yontem: req.body.alt_yontem,
+    calisma_amaci: req.body.calisma_amaci,
+    satilabilirlik: req.body.satilabilirlik,
+    ham_veri: req.body.ham_veri,
+    calisma_tarihi: req.body.calisma_tarihi,
+    proje_kodu: req.body.proje_kodu,
+    rapor_no: req.body.rapor_no,
+    kuyu_arsiv_no: req.body.kuyu_arsiv_no,
+    jeofizik_arsiv_no: req.body.jeofizik_arsiv_no,
+    derleme_no: req.body.derleme_no,
+    cd_no: req.body.cd_no,
+    il: req.body.il,
+    ilce: req.body.ilce,
+    x: req.body.x,
+    y: req.body.y,
+    z: req.body.z,
+    profil_baslangic_x: req.body.profil_baslangic_x,
+    profil_baslangic_y: req.body.profil_baslangic_y,
+    profil_bitis_x: req.body.profil_bitis_x,
+    profil_bitis_y: req.body.profil_bitis_y,
+    zone: req.body.zone,
+    datum: req.body.datum,
+    besyuzbin: req.body.besyuzbin,
+    yuzbin: req.body.yuzbin,
+    yirmibesbin: req.body.yirmibesbin,
+    olculen_parametre_ler: req.body.olculen_parametre_ler,
+    acilim_yonu: req.body.acilim_yonu,
+    acilim_yontemi: req.body.acilim_yontemi,
+    frekans_araligi: req.body.frekans_araligi,
+    mt_olcu_suresisaat: req.body.mt_olcu_suresisaat,
+    z_bileseni: req.body.z_bileseni,
+    amt_olcusu: req.body.amt_olcusu,
+    amt_olcu_suresi: req.body.amt_olcu_suresi,
+    tem_olcusu: req.body.tem_olcusu,
+    kalibrasyon_dosyasi: req.body.kalibrasyon_dosyasi,
+    veri_formati: req.body.veri_formati,
+    ab2_m: req.body.ab2_m,
+    derinlik_m_gr: req.body.derinlik_m_gr,
+    derinlik_m_neu: req.body.derinlik_m_neu,
+    derinlik_m_den: req.body.derinlik_m_den,
+    derinlik_m_res: req.body.derinlik_m_res,
+    derinlik_m_sp: req.body.derinlik_m_sp,
+    derinlik_m_cal: req.body.derinlik_m_cal,
+    derinlik_m_term: req.body.derinlik_m_term,
+    derinlik_m_sgr: req.body.derinlik_m_sgr,
+    derinlik_m_cbl: req.body.derinlik_m_cbl,
+    derinlik_m_son: req.body.derinlik_m_son,
+    derinlik_m_ccl: req.body.derinlik_m_ccl,
+    kayit_boyu_sn: req.body.kayit_boyu_sn,
+    sweep_suresi_sn: req.body.sweep_suresi_sn,
+    sweep_tipi: req.body.sweep_tipi,
+    sweep_sayisi: req.body.sweep_sayisi,
+    sweep_frekanslari_sn_hz: req.body.sweep_frekanslari_sn_hz,
+    sweep_taper_ms: req.body.sweep_taper_ms,
+    yayim_tipi: req.body.yayim_tipi,
+    offsetm: req.body.offsetm,
+    jeofon_dizilimi: req.body.jeofon_dizilimi,
+    grup_araligim: req.body.grup_araligim,
+    atis_araligim: req.body.atis_araligim,
+    ornekleme_araligim: req.body.ornekleme_araligim,
+    ekipman: req.body.ekipman,
+    enerji_kaynagi: req.body.enerji_kaynagi,
+    km2: req.body.km2,
+    profil_boyukm: req.body.profil_boyukm,
+    elektrot_araligi: req.body.elektrot_araligi,
+    dizilim_turu: req.body.dizilim_turu,
+    seviye_sayisi: req.body.seviye_sayisi,
+    profil_araligi: req.body.profil_araligi,
+    a_1: req.body.a_1,
+    a_2: req.body.a_2,
+    a_3: req.body.a_3,
+    a_4: req.body.a_4,
+    dis_loop_boyutu: req.body.dis_loop_boyutu,
     published: req.body.published ? req.body.published : false
   };
 
@@ -50,14 +122,16 @@ exports.create = (req, res) => {
 
 // Retrieve all Tutorials from the database.
 exports.findAll = (req, res) => {
-  const { page, size, title } = req.query;
-  var condition = title ? { title: { [Op.like]: `%${title}%` } } : null;
+  const { page, size, nokta_adi } = req.query;
+  
+  var condition = nokta_adi ? { nokta_adi: { [Op.like]: `%${nokta_adi}%` } } : null;
   
   const { limit, offset } = getPagination(page, size);
 
   Tutorial.findAndCountAll({ where: condition, limit, offset })
     .then(data => {
       const response = getPagingData(data, page, limit);
+      
       res.send(response);
     })
     .catch(err => {
