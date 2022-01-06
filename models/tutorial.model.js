@@ -19,12 +19,9 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING
     },
     calisma_tarihi: {
-      type: Sequelize.DATE
-    },
-    proje_kodu: {
       type: Sequelize.STRING
     },
-    rapor_no: {
+    proje_kodu: {
       type: Sequelize.STRING
     },
     kuyu_arsiv_no: {
@@ -223,6 +220,9 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING
     },
     a_4: {
+      type: Sequelize.STRING
+    },
+    olcu_karne_no: {
       type: Sequelize.STRING
     },
     dis_loop_boyutu: {

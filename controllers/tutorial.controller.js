@@ -37,7 +37,6 @@ exports.create = (req, res) => {
     ham_veri: req.body.ham_veri,
     calisma_tarihi: req.body.calisma_tarihi,
     proje_kodu: req.body.proje_kodu,
-    rapor_no: req.body.rapor_no,
     kuyu_arsiv_no: req.body.kuyu_arsiv_no,
     jeofizik_arsiv_no: req.body.jeofizik_arsiv_no,
     derleme_no: req.body.derleme_no,
@@ -103,6 +102,7 @@ exports.create = (req, res) => {
     a_2: req.body.a_2,
     a_3: req.body.a_3,
     a_4: req.body.a_4,
+    olcu_karne_no: req.body.olcu_karne_no,
     dis_loop_boyutu: req.body.dis_loop_boyutu,
     published: req.body.published ? req.body.published : false
   };
