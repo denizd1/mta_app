@@ -4,6 +4,7 @@ const cors = require("cors");
 const path = __dirname + '/views/';
 
 const app = express();
+const fs = require('fs');
 
 app.use(express.static(path));
 
@@ -31,6 +32,24 @@ app.get('/', function (req,res) {
   res.sendFile(path + "index.html");
 });
 
+app.get('/api/getGeoJson:val', function(req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  val = req.params.val
+  if(val == 0){
+    fs.createReadStream(__dirname + '/tr-cities-utf8.geojson').pipe(res);
+  }
+  if(val == 25){
+    fs.createReadStream(__dirname + '/pafta25000.geojson').pipe(res);
+  }
+  
+  if(val == 100){
+    fs.createReadStream(__dirname + '/pafta100000.geojson').pipe(res);
+  }
+  if(val == 500){
+    fs.createReadStream(__dirname + '/pafta500000.geojson').pipe(res);
+  }
+  
+});
 
 
 // set port, listen for requests
