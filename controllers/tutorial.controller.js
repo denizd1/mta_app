@@ -122,9 +122,9 @@ exports.create = (req, res) => {
 
 // Retrieve all Tutorials from the database.
 exports.findAll = (req, res) => {
-  const { page, size, nokta_adi } = req.query;
-  
-  var condition = nokta_adi ? { nokta_adi: { [Op.like]: `%${nokta_adi}%` } } : null;
+  const { page, size, il } = req.query;
+
+  var condition = il ? { il: { [Op.like]: `%${il}%` } } : null;
   
   const { limit, offset } = getPagination(page, size);
 
@@ -133,6 +133,23 @@ exports.findAll = (req, res) => {
       const response = getPagingData(data, page, limit);
       
       res.send(response);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving tutorials."
+      });
+    });
+};
+
+exports.findAllgetAll=(req,res)=>{
+  const { il } = req.query;
+
+  var condition = il ? { il: { [Op.like]: `%${il}%` } } : null;
+  Tutorial.findAll({ where: condition })
+    .then(data => {
+     
+      res.send(data);
     })
     .catch(err => {
       res.status(500).send({

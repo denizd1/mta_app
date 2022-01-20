@@ -15,6 +15,12 @@ const sequelize = new Sequelize(
       min: config.pool.min,
       acquire: config.pool.acquire,
       idle: config.pool.idle
+    },
+
+    define: {
+      charset: 'utf8',
+      collate: 'utf8_general_ci', 
+      timestamps: true
     }
   }
 );

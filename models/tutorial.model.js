@@ -231,6 +231,9 @@ module.exports = (sequelize, Sequelize) => {
     published: {
       type: Sequelize.BOOLEAN
     }
+  }, {
+    charset: 'utf8',
+    collate: 'utf8_unicode_ci'
   });
 
   return Tutorial;
