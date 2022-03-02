@@ -143,12 +143,14 @@ exports.findAll = (req, res) => {
 };
 
 exports.findAllgetAll=(req,res)=>{
-  const { il,yontem } = req.query;
-
+  const { il,ilce,yontem,alt_yontem } = req.query;
+  
   var conditionCity = il ? { il: { [Op.like]: `%${il}%` } } : null;
-  var conditionMethod = yontem ? { yontem: { [Op.like]: `%${yontem}%` } } : null;
-  console.log(Object.assign({}, conditionCity , conditionMethod))
-  Tutorial.findAll({ where: Object.assign({}, conditionCity , conditionMethod), })
+  var conditionDistrict = ilce ? { ilce: { [Op.like]: `%${ilce}%` } } : null;
+  var conditionMethod =  yontem ? { yontem: { [Op.or]: yontem } } : null;
+
+  var conditionSubMethod = alt_yontem ? { alt_yontem: { [Op.like]: `%${alt_yontem}%` } } : null;
+  Tutorial.findAll({ where: Object.assign({}, conditionCity, conditionDistrict, conditionMethod, conditionSubMethod), })
     .then(data => {
      
       res.send(data);
