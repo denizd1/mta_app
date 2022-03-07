@@ -12,7 +12,7 @@ exports.signup = (req, res) => {
   User.create({
     username: req.body.username,
     email: req.body.email,
-    password: bcrypt.hashSync(req.body.password, 8)
+    password: bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10))
   })
     .then(user => {
       if (req.body.roles) {
@@ -99,7 +99,6 @@ exports.refreshToken = async (req, res) => {
   try {
     let refreshToken = await RefreshToken.findOne({ where: { token: requestToken } });
 
-    console.log(refreshToken)
 
     if (!refreshToken) {
       res.status(403).json({ message: "Refresh token is not in database!" });

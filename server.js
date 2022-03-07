@@ -1,26 +1,46 @@
 const express = require("express");
 const cors = require("cors");
+// const bodyParser = require('body-parser');
+// const cookieParser = require('cookie-parser')
 
-const path = __dirname + '/views/';
-
-const app = express();
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit')
+const db = require("../app/models");
 const fs = require('fs');
 
-app.use(express.static(path));
+const path = __dirname + '/views/';
+const app = express();
+const Role = db.role;
 
 var corsOptions = {
   origin: "http://localhost:8081"
 };
 
+
+//Limiter
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
+
+
+app.use(helmet());
+app.use(limiter)
+app.use(express.static(path));
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+// app.use(bodyParser.urlencoded({ extended: false }))
+// app.use(cookieParser())
+
+
 
 require("../app/routes/tutorial.routes")(app);
 require('../app/routes/auth.routes')(app);
 require('../app/routes/user.routes')(app);
-const db = require("../app/models");
-const Role = db.role;
+
 
 db.sequelize.sync();
 // db.sequelize.sync({force: true}).then(() => {
@@ -33,7 +53,7 @@ app.get('/', function (req,res) {
 });
 
 app.get('/api/getGeoJson:val', function(req, res) {
-  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
   val = req.params.val
   if(val == 0){
     fs.createReadStream(__dirname + '/tr-cities-utf8.geojson').pipe(res);
