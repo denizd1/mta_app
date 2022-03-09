@@ -1,12 +1,13 @@
 module.exports = app => {
     const tutorials = require("../controllers/tutorial.controller.js");
+    const expAutoSan = require('express-autosanitizer');
     
   
     var router = require("express").Router();
     
    
     // Create a new Tutorial
-    router.post("/", tutorials.create);
+    router.post("/",expAutoSan.route, tutorials.create);
   
     // Retrieve all Tutorials
     router.get("/", tutorials.findAll);
@@ -16,10 +17,10 @@ module.exports = app => {
     router.get("/published", tutorials.findAllPublished);
   
     // Retrieve a single Tutorial with id
-    router.get("/:id", tutorials.findOne);
+    router.get("/:id", expAutoSan.route, tutorials.findOne);
   
     // Update a Tutorial with id
-    router.put("/:id", tutorials.update);
+    router.put("/:id", expAutoSan.route, tutorials.update);
   
     // Delete a Tutorial with id
     router.delete("/:id", tutorials.delete);

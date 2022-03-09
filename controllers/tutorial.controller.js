@@ -20,7 +20,7 @@ const getPagingData = (data, page, limit) => {
 // Create and Save a new Tutorial
 exports.create = (req, res) => {
   // Validate request
-  if (!req.body.nokta_adi) {
+  if (!req.autosan.body.nokta_adi) {
     res.status(400).send({
       message: "Content can not be empty!"
     });
@@ -29,82 +29,82 @@ exports.create = (req, res) => {
 
   // Create a Tutorial
   const tutorial = {
-    nokta_adi: req.body.nokta_adi,
-    yontem: req.body.yontem,
-    alt_yontem: req.body.alt_yontem,
-    calisma_amaci: req.body.calisma_amaci,
-    satilabilirlik: req.body.satilabilirlik,
-    ham_veri: req.body.ham_veri,
-    calisma_tarihi: req.body.calisma_tarihi,
-    proje_kodu: req.body.proje_kodu,
-    kuyu_arsiv_no: req.body.kuyu_arsiv_no,
-    jeofizik_arsiv_no: req.body.jeofizik_arsiv_no,
-    derleme_no: req.body.derleme_no,
-    cd_no: req.body.cd_no,
-    il: req.body.il,
-    ilce: req.body.ilce,
-    x: req.body.x,
-    y: req.body.y,
-    z: req.body.z,
-    profil_baslangic_x: req.body.profil_baslangic_x,
-    profil_baslangic_y: req.body.profil_baslangic_y,
-    profil_bitis_x: req.body.profil_bitis_x,
-    profil_bitis_y: req.body.profil_bitis_y,
-    zone: req.body.zone,
-    datum: req.body.datum,
-    besyuzbin: req.body.besyuzbin,
-    yuzbin: req.body.yuzbin,
-    yirmibesbin: req.body.yirmibesbin,
-    olculen_parametre_ler: req.body.olculen_parametre_ler,
-    acilim_yonu: req.body.acilim_yonu,
-    acilim_yontemi: req.body.acilim_yontemi,
-    frekans_araligi: req.body.frekans_araligi,
-    mt_olcu_suresisaat: req.body.mt_olcu_suresisaat,
-    z_bileseni: req.body.z_bileseni,
-    amt_olcusu: req.body.amt_olcusu,
-    amt_olcu_suresi: req.body.amt_olcu_suresi,
-    tem_olcusu: req.body.tem_olcusu,
-    kalibrasyon_dosyasi: req.body.kalibrasyon_dosyasi,
-    veri_formati: req.body.veri_formati,
-    ab2_m: req.body.ab2_m,
-    derinlik_m_gr: req.body.derinlik_m_gr,
-    derinlik_m_neu: req.body.derinlik_m_neu,
-    derinlik_m_den: req.body.derinlik_m_den,
-    derinlik_m_res: req.body.derinlik_m_res,
-    derinlik_m_sp: req.body.derinlik_m_sp,
-    derinlik_m_cal: req.body.derinlik_m_cal,
-    derinlik_m_term: req.body.derinlik_m_term,
-    derinlik_m_sgr: req.body.derinlik_m_sgr,
-    derinlik_m_cbl: req.body.derinlik_m_cbl,
-    derinlik_m_son: req.body.derinlik_m_son,
-    derinlik_m_ccl: req.body.derinlik_m_ccl,
-    kayit_boyu_sn: req.body.kayit_boyu_sn,
-    sweep_suresi_sn: req.body.sweep_suresi_sn,
-    sweep_tipi: req.body.sweep_tipi,
-    sweep_sayisi: req.body.sweep_sayisi,
-    sweep_frekanslari_sn_hz: req.body.sweep_frekanslari_sn_hz,
-    sweep_taper_ms: req.body.sweep_taper_ms,
-    yayim_tipi: req.body.yayim_tipi,
-    offsetm: req.body.offsetm,
-    jeofon_dizilimi: req.body.jeofon_dizilimi,
-    grup_araligim: req.body.grup_araligim,
-    atis_araligim: req.body.atis_araligim,
-    ornekleme_araligim: req.body.ornekleme_araligim,
-    ekipman: req.body.ekipman,
-    enerji_kaynagi: req.body.enerji_kaynagi,
-    km2: req.body.km2,
-    profil_boyukm: req.body.profil_boyukm,
-    elektrot_araligi: req.body.elektrot_araligi,
-    dizilim_turu: req.body.dizilim_turu,
-    seviye_sayisi: req.body.seviye_sayisi,
-    profil_araligi: req.body.profil_araligi,
-    a_1: req.body.a_1,
-    a_2: req.body.a_2,
-    a_3: req.body.a_3,
-    a_4: req.body.a_4,
-    olcu_karne_no: req.body.olcu_karne_no,
-    dis_loop_boyutu: req.body.dis_loop_boyutu,
-    published: req.body.published ? req.body.published : false
+    nokta_adi: req.autosan.body.nokta_adi,
+    yontem: req.autosan.body.yontem,
+    alt_yontem: req.autosan.body.alt_yontem,
+    calisma_amaci: req.autosan.body.calisma_amaci,
+    satilabilirlik: req.autosan.body.satilabilirlik,
+    ham_veri: req.autosan.body.ham_veri,
+    calisma_tarihi: req.autosan.body.calisma_tarihi,
+    proje_kodu: req.autosan.body.proje_kodu,
+    kuyu_arsiv_no: req.autosan.body.kuyu_arsiv_no,
+    jeofizik_arsiv_no: req.autosan.body.jeofizik_arsiv_no,
+    derleme_no: req.autosan.body.derleme_no,
+    cd_no: req.autosan.body.cd_no,
+    il: req.autosan.body.il,
+    ilce: req.autosan.body.ilce,
+    x: req.autosan.body.x,
+    y: req.autosan.body.y,
+    z: req.autosan.body.z,
+    profil_baslangic_x: req.autosan.body.profil_baslangic_x,
+    profil_baslangic_y: req.autosan.body.profil_baslangic_y,
+    profil_bitis_x: req.autosan.body.profil_bitis_x,
+    profil_bitis_y: req.autosan.body.profil_bitis_y,
+    zone: req.autosan.body.zone,
+    datum: req.autosan.body.datum,
+    besyuzbin: req.autosan.body.besyuzbin,
+    yuzbin: req.autosan.body.yuzbin,
+    yirmibesbin: req.autosan.body.yirmibesbin,
+    olculen_parametre_ler: req.autosan.body.olculen_parametre_ler,
+    acilim_yonu: req.autosan.body.acilim_yonu,
+    acilim_yontemi: req.autosan.body.acilim_yontemi,
+    frekans_araligi: req.autosan.body.frekans_araligi,
+    mt_olcu_suresisaat: req.autosan.body.mt_olcu_suresisaat,
+    z_bileseni: req.autosan.body.z_bileseni,
+    amt_olcusu: req.autosan.body.amt_olcusu,
+    amt_olcu_suresi: req.autosan.body.amt_olcu_suresi,
+    tem_olcusu: req.autosan.body.tem_olcusu,
+    kalibrasyon_dosyasi: req.autosan.body.kalibrasyon_dosyasi,
+    veri_formati: req.autosan.body.veri_formati,
+    ab2_m: req.autosan.body.ab2_m,
+    derinlik_m_gr: req.autosan.body.derinlik_m_gr,
+    derinlik_m_neu: req.autosan.body.derinlik_m_neu,
+    derinlik_m_den: req.autosan.body.derinlik_m_den,
+    derinlik_m_res: req.autosan.body.derinlik_m_res,
+    derinlik_m_sp: req.autosan.body.derinlik_m_sp,
+    derinlik_m_cal: req.autosan.body.derinlik_m_cal,
+    derinlik_m_term: req.autosan.body.derinlik_m_term,
+    derinlik_m_sgr: req.autosan.body.derinlik_m_sgr,
+    derinlik_m_cbl: req.autosan.body.derinlik_m_cbl,
+    derinlik_m_son: req.autosan.body.derinlik_m_son,
+    derinlik_m_ccl: req.autosan.body.derinlik_m_ccl,
+    kayit_boyu_sn: req.autosan.body.kayit_boyu_sn,
+    sweep_suresi_sn: req.autosan.body.sweep_suresi_sn,
+    sweep_tipi: req.autosan.body.sweep_tipi,
+    sweep_sayisi: req.autosan.body.sweep_sayisi,
+    sweep_frekanslari_sn_hz: req.autosan.body.sweep_frekanslari_sn_hz,
+    sweep_taper_ms: req.autosan.body.sweep_taper_ms,
+    yayim_tipi: req.autosan.body.yayim_tipi,
+    offsetm: req.autosan.body.offsetm,
+    jeofon_dizilimi: req.autosan.body.jeofon_dizilimi,
+    grup_araligim: req.autosan.body.grup_araligim,
+    atis_araligim: req.autosan.body.atis_araligim,
+    ornekleme_araligim: req.autosan.body.ornekleme_araligim,
+    ekipman: req.autosan.body.ekipman,
+    enerji_kaynagi: req.autosan.body.enerji_kaynagi,
+    km2: req.autosan.body.km2,
+    profil_boyukm: req.autosan.body.profil_boyukm,
+    elektrot_araligi: req.autosan.body.elektrot_araligi,
+    dizilim_turu: req.autosan.body.dizilim_turu,
+    seviye_sayisi: req.autosan.body.seviye_sayisi,
+    profil_araligi: req.autosan.body.profil_araligi,
+    a_1: req.autosan.body.a_1,
+    a_2: req.autosan.body.a_2,
+    a_3: req.autosan.body.a_3,
+    a_4: req.autosan.body.a_4,
+    olcu_karne_no: req.autosan.body.olcu_karne_no,
+    dis_loop_boyutu: req.autosan.body.dis_loop_boyutu,
+    published: req.autosan.body.published ? req.body.published : false
   };
 
   // Save Tutorial in the database
@@ -165,11 +165,12 @@ exports.findAllgetAll=(req,res)=>{
 
 // Find a single Tutorial with an id
 exports.findOne = (req, res) => {
-  const id = req.params.id;
-
+  const id = req.autosan.params.id;
+ 
   Tutorial.findByPk(id)
     .then(data => {
       res.send(data);
+      
     })
     .catch(err => {
       res.status(500).send({
@@ -180,9 +181,9 @@ exports.findOne = (req, res) => {
 
 // Update a Tutorial by the id in the request
 exports.update = (req, res) => {
-  const id = req.params.id;
+  const id = req.autosan.params.id;
 
-  Tutorial.update(req.body, {
+  Tutorial.update(req.autosan.body, {
     where: { id: id }
   })
     .then(num => {
