@@ -122,13 +122,19 @@ exports.create = (req, res) => {
 
 // Retrieve all Tutorials from the database.
 exports.findAll = (req, res) => {
-  const { page, size, il } = req.query;
-
-  var condition = il ? { il: { [Op.like]: `%${il}%` } } : null;
-  
+  console.log(req.query)
+  const { page, size, il,ilce } = req.query;
   const { limit, offset } = getPagination(page, size);
+  var conditionIl = il ? { il: { [Op.like]: `%${il}%` } } : null;;
+  if(ilce){
+    conditionIl = il ? { il: { [Op.like]: `%${il}%` }, ilce: { [Op.like]: `%${ilce}%` } } : null;
+  }
+ 
 
-  Tutorial.findAndCountAll({ where: condition, limit, offset })
+  
+  
+
+  Tutorial.findAndCountAll({ where: conditionIl,limit, offset})
     .then(data => {
       const response = getPagingData(data, page, limit);
       
