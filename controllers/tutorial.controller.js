@@ -1,6 +1,7 @@
 const db = require("../models");
 const Tutorial = db.tutorials;
 const Op = db.Sequelize.Op;
+const _ = require("lodash");
 
 const getPagination = (page, size) => {
   const limit = size ? +size : 3;
@@ -125,7 +126,22 @@ exports.findAll = (req, res) => {
   console.log(req.query)
   const { page, size, il,ilce } = req.query;
   const { limit, offset } = getPagination(page, size);
-  var conditionIl = il ? { il: { [Op.like]: `%${il}%` } } : null;;
+  const fields = Object.keys(
+    _.pick(Tutorial.rawAttributes, [
+        "nokta_adi",
+        "calisma_amaci",
+        "il",
+        "ilce",
+        "yontem",
+        "alt_yontem",
+    ])
+  );
+  const filters = {};
+  
+  fields.forEach((item) => (filters[item] = { [Op.iLike]: `%${il}%` }));
+  console.log(fields['il'])
+
+  var conditionIl = il ? {[Op.or]: filters} : null;
   if(ilce){
     conditionIl = il ? { il: { [Op.like]: `%${il}%` }, ilce: { [Op.like]: `%${ilce}%` } } : null;
   }
