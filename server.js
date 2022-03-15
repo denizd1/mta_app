@@ -5,7 +5,7 @@ const cors = require("cors");
 
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit')
-const db = require("../app/models");
+const db = require(__dirname +"/models");
 const fs = require('fs');
 
 const path = __dirname + '/views/';
@@ -37,9 +37,9 @@ app.use(express.urlencoded({ extended: true }));
 
 
 
-require("../app/routes/tutorial.routes")(app);
-require('../app/routes/auth.routes')(app);
-require('../app/routes/user.routes')(app);
+require(__dirname +"/routes/tutorial.routes")(app);
+require(__dirname +'/routes/auth.routes')(app);
+require(__dirname +'/routes/user.routes')(app);
 
 
 db.sequelize.sync();
