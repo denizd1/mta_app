@@ -1,5 +1,8 @@
 const crypto = require('crypto');
-const secret = 'c0fa1bc00531bd78ef38c628449c5102aeabd49b5dc3a2a516ea6ea959d6658e';
+var prime_length = 512;
+var diffHell = crypto.createDiffieHellman(prime_length);
+const secret = diffHell.generateKeys('base64')
+
 module.exports = {
     secret: crypto.createHmac('sha512', secret)
     .update('superdupersecretkey')
