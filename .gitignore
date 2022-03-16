@@ -1,4 +1,3 @@
 node_modules/
 .dccache
 .dccache
-config/auth.config.js
