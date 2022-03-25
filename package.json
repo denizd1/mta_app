@@ -1,10 +1,14 @@
 {
-  "name": "mta_app",
+  "name": "ProjectHub",
   "version": "1.0.0",
   "description": "MTA Genel Mudurlugu Jeofizik Etutleri Dairesi Baskanligi, Turkiye Geneli Jeofizik Calismalari",
-  "main": "server.js",
+  "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "postinstall": "electron-builder install-app-deps",
+    "start": "electron main.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
   },
   "keywords": [
     "nodejs",
@@ -16,6 +20,19 @@
   ],
   "author": "Deniz Donmez",
   "license": "ISC",
+  "build": {
+    "appId": "ProjectHub | MTA Jeofizik",
+    
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    },
+    "win": {
+      "target": "NSIS"
+    }
+  },
   "dependencies": {
     "@vee-validate/i18n": "^4.5.10",
     "axios": "^0.24.0",
@@ -39,5 +56,9 @@
     "vue-meta": "^2.4.0",
     "vue-router": "^3.5.3",
     "xlsx": "^0.17.4"
+  },
+  "devDependencies": {
+    "electron": "^17.1.2",
+    "electron-builder": "^22.14.13"
   }
 }

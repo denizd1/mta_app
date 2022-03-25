@@ -1,3 +1,5 @@
 node_modules/
 .dccache
 views/
+/dist
+views/index.html
