@@ -23,7 +23,7 @@ exports.create = (req, res) => {
   // Validate request
   if (!req.autosan.body.nokta_adi) {
     res.status(400).send({
-      message: "Content can not be empty!"
+      message: "Content can not be empty!",
     });
     return;
   }
@@ -105,82 +105,96 @@ exports.create = (req, res) => {
     a_4: req.autosan.body.a_4,
     olcu_karne_no: req.autosan.body.olcu_karne_no,
     dis_loop_boyutu: req.autosan.body.dis_loop_boyutu,
-    published: req.autosan.body.published ? req.body.published : false
+    published: req.autosan.body.published ? req.body.published : false,
   };
 
   // Save Tutorial in the database
   Tutorial.create(tutorial)
-    .then(data => {
+    .then((data) => {
       res.send(data);
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message:
-          err.message || "Some error occurred while creating the Tutorial."
+          err.message || "Some error occurred while creating the Tutorial.",
       });
     });
 };
 
 // Retrieve all Tutorials from the database.
 exports.findAll = (req, res) => {
-  console.log(req.query)
-  const { page, size, il,ilce } = req.query;
+  const { page, size, il, ilce, status } = req.query;
+  console.log(req.query);
   const { limit, offset } = getPagination(page, size);
   const fields = Object.keys(
     _.pick(Tutorial.rawAttributes, [
-        "nokta_adi",
-        "calisma_amaci",
-        "il",
-        "ilce",
-        "yontem",
-        "alt_yontem",
+      "nokta_adi",
+      "calisma_amaci",
+      "il",
+      "ilce",
+      "yontem",
+      "alt_yontem",
     ])
   );
   const filters = {};
-  
+
   fields.forEach((item) => (filters[item] = { [Op.iLike]: `%${il}%` }));
-  console.log(fields['il'])
 
-  var conditionIl = il ? {[Op.or]: filters} : null;
-  if(ilce){
-    conditionIl = il ? { il: { [Op.like]: `%${il}%` }, ilce: { [Op.like]: `%${ilce}%` } } : null;
+  var conditionIl = il ? { [Op.or]: filters } : null;
+  if (ilce) {
+    conditionIl = il
+      ? { il: { [Op.like]: `%${il}%` }, ilce: { [Op.like]: `%${ilce}%` } }
+      : null;
   }
- 
 
-  
-  
-
-  Tutorial.findAndCountAll({ where: conditionIl,limit, offset})
-    .then(data => {
+  if (status == "user") {
+    conditionIl = { ...conditionIl, published: true };
+  }
+  Tutorial.findAndCountAll({ where: conditionIl, limit, offset })
+    .then((data) => {
       const response = getPagingData(data, page, limit);
-      
+
       res.send(response);
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message:
-          err.message || "Some error occurred while retrieving tutorials."
+          err.message || "Some error occurred while retrieving tutorials.",
       });
     });
 };
 
-exports.findAllgetAll=(req,res)=>{
-  const { il,ilce,yontem,alt_yontem } = req.query;
-  
+exports.findAllgetAll = (req, res) => {
+  const { il, ilce, yontem, alt_yontem, status } = req.query;
+
   var conditionCity = il ? { il: { [Op.like]: `%${il}%` } } : null;
   var conditionDistrict = ilce ? { ilce: { [Op.like]: `%${ilce}%` } } : null;
-  var conditionMethod =  yontem ? { yontem: { [Op.or]: yontem } } : null;
+  var conditionMethod = yontem ? { yontem: { [Op.or]: yontem } } : null;
 
-  var conditionSubMethod = alt_yontem ? { alt_yontem: { [Op.like]: `%${alt_yontem}%` } } : null;
-  Tutorial.findAll({ where: Object.assign({}, conditionCity, conditionDistrict, conditionMethod, conditionSubMethod), })
-    .then(data => {
-     
+  var conditionSubMethod = alt_yontem
+    ? { alt_yontem: { [Op.like]: `%${alt_yontem}%` } }
+    : null;
+  var conditionStatus = null;
+  if (status == "user") {
+    conditionStatus = { published: true };
+  }
+  Tutorial.findAll({
+    where: Object.assign(
+      {},
+      conditionCity,
+      conditionDistrict,
+      conditionMethod,
+      conditionSubMethod,
+      conditionStatus ? conditionStatus : null
+    ),
+  })
+    .then((data) => {
       res.send(data);
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message:
-          err.message || "Some error occurred while retrieving tutorials."
+          err.message || "Some error occurred while retrieving tutorials.",
       });
     });
 };
@@ -188,15 +202,14 @@ exports.findAllgetAll=(req,res)=>{
 // Find a single Tutorial with an id
 exports.findOne = (req, res) => {
   const id = req.autosan.params.id;
- 
+
   Tutorial.findByPk(id)
-    .then(data => {
+    .then((data) => {
       res.send(data);
-      
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
-        message: "Error retrieving Tutorial with id=" + id
+        message: "Error retrieving Tutorial with id=" + id,
       });
     });
 };
@@ -206,22 +219,22 @@ exports.update = (req, res) => {
   const id = req.autosan.params.id;
 
   Tutorial.update(req.autosan.body, {
-    where: { id: id }
+    where: { id: id },
   })
-    .then(num => {
+    .then((num) => {
       if (num == 1) {
         res.send({
-          message: "Tutorial was updated successfully."
+          message: "Tutorial was updated successfully.",
         });
       } else {
         res.send({
-          message: `Cannot update Tutorial with id=${id}. Maybe Tutorial was not found or req.body is empty!`
+          message: `Cannot update Tutorial with id=${id}. Maybe Tutorial was not found or req.body is empty!`,
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
-        message: "Error updating Tutorial with id=" + id
+        message: "Error updating Tutorial with id=" + id,
       });
     });
 };
@@ -231,22 +244,22 @@ exports.delete = (req, res) => {
   const id = req.params.id;
 
   Tutorial.destroy({
-    where: { id: id }
+    where: { id: id },
   })
-    .then(num => {
+    .then((num) => {
       if (num == 1) {
         res.send({
-          message: "Tutorial was deleted successfully!"
+          message: "Tutorial was deleted successfully!",
         });
       } else {
         res.send({
-          message: `Cannot delete Tutorial with id=${id}. Maybe Tutorial was not found!`
+          message: `Cannot delete Tutorial with id=${id}. Maybe Tutorial was not found!`,
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
-        message: "Could not delete Tutorial with id=" + id
+        message: "Could not delete Tutorial with id=" + id,
       });
     });
 };
@@ -255,15 +268,15 @@ exports.delete = (req, res) => {
 exports.deleteAll = (req, res) => {
   Tutorial.destroy({
     where: {},
-    truncate: false
+    truncate: false,
   })
-    .then(nums => {
+    .then((nums) => {
       res.send({ message: `${nums} Tutorials were deleted successfully!` });
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message:
-          err.message || "Some error occurred while removing all tutorials."
+          err.message || "Some error occurred while removing all tutorials.",
       });
     });
 };
@@ -274,14 +287,14 @@ exports.findAllPublished = (req, res) => {
   const { limit, offset } = getPagination(page, size);
 
   Tutorial.findAndCountAll({ where: { published: true }, limit, offset })
-    .then(data => {
+    .then((data) => {
       const response = getPagingData(data, page, limit);
       res.send(response);
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message:
-          err.message || "Some error occurred while retrieving tutorials."
+          err.message || "Some error occurred while retrieving tutorials.",
       });
     });
 };
