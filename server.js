@@ -15,9 +15,7 @@ const publicPath = path.resolve(__dirname, "/views");
 const app = express();
 const Role = db.role;
 
-// var corsOptions = {
-//   origin: "http://localhost:8081",
-// };
+app.use(cors());
 
 //Limiter
 const limiter = rateLimit({
@@ -30,7 +28,7 @@ const limiter = rateLimit({
 app.use(limiter);
 
 app.use(express.static(__dirname + "/views/"));
-app.use(cors());
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // app.use(bodyParser.urlencoded({ extended: false }))
@@ -76,7 +74,7 @@ app.get("/api/getGeoJson:val", function (req, res) {
 // app.listen(PORT, () => {
 //   console.log(`Server is running on port ${PORT}.`);
 // });
-app.listen(8080, "10.68.19.149");
+app.listen(8080);
 
 function initial() {
   Role.create({
