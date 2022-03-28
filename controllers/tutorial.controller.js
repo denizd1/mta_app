@@ -123,7 +123,7 @@ exports.create = (req, res) => {
 
 // Retrieve all Tutorials from the database.
 exports.findAll = (req, res) => {
-  const { page, size, il, ilce, status } = req.query;
+  const { page, size, il, ilce, userStatus } = req.query;
   console.log(req.query);
   const { limit, offset } = getPagination(page, size);
   const fields = Object.keys(
@@ -147,7 +147,7 @@ exports.findAll = (req, res) => {
       : null;
   }
 
-  if (status == "user") {
+  if (userStatus == "user") {
     conditionIl = { ...conditionIl, published: true };
   }
   Tutorial.findAndCountAll({ where: conditionIl, limit, offset })
@@ -165,7 +165,7 @@ exports.findAll = (req, res) => {
 };
 
 exports.findAllgetAll = (req, res) => {
-  const { il, ilce, yontem, alt_yontem, status } = req.query;
+  const { il, ilce, yontem, alt_yontem, userStatus } = req.query;
 
   var conditionCity = il ? { il: { [Op.like]: `%${il}%` } } : null;
   var conditionDistrict = ilce ? { ilce: { [Op.like]: `%${ilce}%` } } : null;
@@ -175,7 +175,7 @@ exports.findAllgetAll = (req, res) => {
     ? { alt_yontem: { [Op.like]: `%${alt_yontem}%` } }
     : null;
   var conditionStatus = null;
-  if (status == "user") {
+  if (userStatus == "user") {
     conditionStatus = { published: true };
   }
   Tutorial.findAll({
