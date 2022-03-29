@@ -74,7 +74,10 @@ app.get("/api/getGeoJson:val", function (req, res) {
 // app.listen(PORT, () => {
 //   console.log(`Server is running on port ${PORT}.`);
 // });
-app.listen(8080, "172.20.10.10");
+const server = app.listen(8080, () =>
+  console.log(`Express server listening on port 8000`)
+);
+module.exports = app;
 
 function initial() {
   Role.create({
