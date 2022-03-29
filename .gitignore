@@ -3,3 +3,4 @@ node_modules/
 views/
 /dist
 views/index.html
+.env
