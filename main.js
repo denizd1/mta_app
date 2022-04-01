@@ -1,8 +1,9 @@
 "use strict";
-const electron = require("electron");
+require("v8-compile-cache");
+const screen = require("electron").screen;
 const app = require("electron").app;
 const Window = require("electron").BrowserWindow; // jshint ignore:line
-const Tray = require("electron").Tray; // jshint ignore:line
+// const Tray = require("electron").Tray; // jshint ignore:line
 const Menu = require("electron").Menu; // jshint ignore:line
 
 const server = require("./server");
@@ -10,7 +11,7 @@ const server = require("./server");
 let mainWindow = null;
 
 app.on("ready", function () {
-  const { width, height } = electron.screen.getPrimaryDisplay().workAreaSize;
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
   mainWindow = new Window({
     width: width,
     height: height,
