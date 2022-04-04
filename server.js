@@ -1,8 +1,7 @@
 require("v8-compile-cache");
 const express = require("express");
 const cors = require("cors");
-// const bodyParser = require('body-parser');
-// const cookieParser = require('cookie-parser')
+const cookieParser = require("cookie-parser");
 
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
@@ -12,6 +11,9 @@ const fs = require("fs");
 const path = __dirname + "/views/";
 const app = express();
 const Role = db.role;
+
+const csrf = require("csurf");
+const csrfProtection = csrf({ cookie: true });
 
 // var whitelist = ["http://0.0.0.0:8081"];
 // var corsOptions = {
@@ -35,8 +37,7 @@ app.use(limiter);
 app.use(express.static(path));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// app.use(bodyParser.urlencoded({ extended: false }))
-// app.use(cookieParser())
+app.use(cookieParser());
 app.use(helmet());
 
 require(__dirname + "/routes/tutorial.routes")(app);
@@ -48,7 +49,9 @@ db.sequelize.sync();
 //   console.log('Drop and Resync Database with { force: true }');
 //   initial();
 // });
-
+app.get("/api/getcsrftoken", csrfProtection, function (req, res) {
+  return res.json({ csrfToken: req.csrfToken() });
+});
 app.get("/", function (req, res) {
   res.sendFile(path + "index.html");
 });
