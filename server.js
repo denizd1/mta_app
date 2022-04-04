@@ -1,13 +1,14 @@
 const express = require("express");
 const cors = require("cors");
 var path = require("path");
-// const bodyParser = require('body-parser');
-// const cookieParser = require('cookie-parser')
+const cookieParser = require("cookie-parser");
 
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const db = require(__dirname + "/models");
 const fs = require("fs");
+const csrf = require("csurf");
+const csrfProtection = csrf({ cookie: true });
 
 // const path = __dirname + '/views/';
 const publicPath = path.resolve(__dirname, "/views");
@@ -31,8 +32,7 @@ app.use(express.static(__dirname + "/views/"));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// app.use(bodyParser.urlencoded({ extended: false }))
-// app.use(cookieParser())
+app.use(cookieParser());
 app.use(helmet());
 
 require(__dirname + "/routes/tutorial.routes")(app);
@@ -47,7 +47,9 @@ db.sequelize.sync();
 app.get("/", function (req, res) {
   res.sendFile(__dirname + "/views/index.html");
 });
-
+app.get("/api/getcsrftoken", csrfProtection, function (req, res) {
+  return res.json({ csrfToken: req.csrfToken() });
+});
 //view engine setup
 app.set("views", path.join(__dirname, "/views"));
 
