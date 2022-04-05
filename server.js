@@ -38,6 +38,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   session({
     secret: process.env.SESSIONSECRET,
+    resave: true,
+    saveUninitialized: true,
   })
 );
 app.use(cookieParser());
