@@ -9,15 +9,14 @@ const db = require(__dirname + "/models");
 const fs = require("fs");
 
 // const path = __dirname + '/views/';
-const publicPath = path.resolve(__dirname, "/views");
+// const publicPath = path.resolve(__dirname, "/views");
 
 const app = express();
 const Role = db.role;
 const csrf = require("csurf");
 const csrfProtection = csrf();
-const pathe = require("path");
 
-require("dotenv").config({ path: pathe.resolve(__dirname, "/.env") });
+require("dotenv").config({ path: path.resolve(__dirname, "/.env") });
 
 app.use(cors());
 
