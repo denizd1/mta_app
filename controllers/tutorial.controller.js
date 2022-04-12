@@ -1,5 +1,6 @@
 const db = require("../models");
 const Tutorial = db.tutorials;
+const Sequelize = db.Sequelize;
 const Op = db.Sequelize.Op;
 const _ = require("lodash");
 
@@ -106,6 +107,8 @@ exports.create = (req, res) => {
     olcu_karne_no: req.autosan.body.olcu_karne_no,
     dis_loop_boyutu: req.autosan.body.dis_loop_boyutu,
     published: req.autosan.body.published ? req.body.published : false,
+    lat: req.autosan.body.lat,
+    lon: req.autosan.body.lon,
   };
 
   // Save Tutorial in the database
@@ -199,6 +202,44 @@ exports.findAllgetAll = (req, res) => {
     });
 };
 
+//Find all tutorials inside the geojson polygon
+exports.findAllGeo = (req, res) => {
+  const { geojson } = req.query;
+
+  // const datdat = Tutorial.sequelize.fn(
+  //   "ST_GeomFromGeoJSON",
+  //   '{"type":"Polygon","coordinates":[[' + geojson + "]]}"
+  // );
+  // console.log(datdat);
+  // var location = Tutorial.sequelize.fn(
+  //   "ST_WITHIN",
+  //   geojson,
+  //   Tutorial.sequelize.col("location")
+  // );
+
+  Tutorial.findAll({
+    where: Tutorial.sequelize.where(
+      Tutorial.sequelize.fn(
+        "ST_Within",
+        Tutorial.sequelize.col("location"),
+        Tutorial.sequelize.fn(
+          "ST_GeomFromGeoJSON",
+          '{"type":"Polygon","coordinates":[[' + geojson + "]]}"
+        )
+      ),
+      true
+    ),
+  })
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving tutorials.",
+      });
+    });
+};
 // Find a single Tutorial with an id
 exports.findOne = (req, res) => {
   const id = req.autosan.params.id;

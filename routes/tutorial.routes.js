@@ -17,6 +17,9 @@ module.exports = (app) => {
   router.get("/", tutorials.findAll);
   router.get("/getall", tutorials.findAllgetAll);
 
+  // Retrieve all Tutorials in geojson
+  router.get("/findAllGeo", tutorials.findAllGeo);
+
   // Retrieve all published Tutorials
   router.get("/published", tutorials.findAllPublished);
 
