@@ -6,11 +6,10 @@ const Window = require("electron").BrowserWindow; // jshint ignore:line
 // const Tray = require("electron").Tray; // jshint ignore:line
 const Menu = require("electron").Menu; // jshint ignore:line
 
-const server = require("./server");
-
 let mainWindow = null;
 
 app.on("ready", function () {
+  require("./server.js");
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
   mainWindow = new Window({
     width: width,
@@ -30,8 +29,8 @@ app.on("ready", function () {
     //  'node-integration': false // otherwise various client-side things may break
   });
 
-  // mainWindow.loadURL("http://10.68.19.153:8080/");
-  mainWindow.loadURL("http://172.20.10.10:8080/");
+  // mainWindow.loadURL(`file://${path.join(__dirname, "/views/index.html")}`);
+  mainWindow.loadURL("http://172.20.10.10:8080/"); //172.20.10.10:8080
 
   // remove this for production
   var template = [

@@ -8,15 +8,13 @@ const rateLimit = require("express-rate-limit");
 const db = require(__dirname + "/models");
 const fs = require("fs");
 
-// const path = __dirname + '/views/';
-// const publicPath = path.resolve(__dirname, "/views");
-
+const publicPath = path.join(__dirname, "./views");
 const app = express();
 const Role = db.role;
 const csrf = require("csurf");
 const csrfProtection = csrf();
 
-require("dotenv").config({ path: path.resolve(__dirname, "/.env") });
+require("dotenv").config({ path: path.resolve(__dirname, "./.env") });
 
 app.use(cors());
 
@@ -29,8 +27,7 @@ const limiter = rateLimit({
 });
 
 app.use(limiter);
-
-app.use(express.static(__dirname + "/views/"));
+app.use(express.static(publicPath));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -59,9 +56,9 @@ db.sequelize.sync();
 //   initial();
 // });
 
-app.get("/", function (req, res) {
-  res.sendFile(__dirname + "/views/index.html");
-});
+// app.get("/", function (req, res) {
+//   res.sendFile(__dirname + "/views/index.html");
+// });
 app.get("/api/getcsrftoken", csrfProtection, function (req, res) {
   return res.json({ csrfToken: req.csrfToken() });
 });
