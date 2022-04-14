@@ -204,7 +204,8 @@ exports.findAllgetAll = (req, res) => {
 
 //Find all tutorials inside the geojson polygon
 exports.findAllGeo = (req, res) => {
-  const { geojson } = req.query;
+  const { geojson, yontem } = req.query;
+  console.log(yontem);
 
   // const datdat = Tutorial.sequelize.fn(
   //   "ST_GeomFromGeoJSON",
@@ -216,19 +217,21 @@ exports.findAllGeo = (req, res) => {
   //   geojson,
   //   Tutorial.sequelize.col("location")
   // );
+  var conditionMethod = yontem ? { yontem: { [Op.or]: yontem } } : null;
+  var locationCondition = Tutorial.sequelize.where(
+    Tutorial.sequelize.fn(
+      "ST_Within",
+      Tutorial.sequelize.col("location"),
+      Tutorial.sequelize.fn(
+        "ST_GeomFromGeoJSON",
+        '{"type":"Polygon","coordinates":[[' + geojson + "]]}"
+      )
+    ),
+    true
+  );
 
   Tutorial.findAll({
-    where: Tutorial.sequelize.where(
-      Tutorial.sequelize.fn(
-        "ST_Within",
-        Tutorial.sequelize.col("location"),
-        Tutorial.sequelize.fn(
-          "ST_GeomFromGeoJSON",
-          '{"type":"Polygon","coordinates":[[' + geojson + "]]}"
-        )
-      ),
-      true
-    ),
+    where: [locationCondition, conditionMethod],
   })
     .then((data) => {
       res.send(data);
