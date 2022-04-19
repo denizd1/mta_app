@@ -126,8 +126,7 @@ exports.create = (req, res) => {
 
 // Retrieve all Tutorials from the database.
 exports.findAll = (req, res) => {
-  const { page, size, il, ilce, userStatus } = req.query;
-  console.log(req.query);
+  const { page, size, il, ilce, userStatus, areaJson } = req.query;
   const { limit, offset } = getPagination(page, size);
   const fields = Object.keys(
     _.pick(Tutorial.rawAttributes, [
@@ -149,11 +148,30 @@ exports.findAll = (req, res) => {
       ? { il: { [Op.like]: `%${il}%` }, ilce: { [Op.like]: `%${ilce}%` } }
       : null;
   }
+  var locationCondition = null;
+  if (areaJson) {
+    locationCondition = Tutorial.sequelize.where(
+      Tutorial.sequelize.fn(
+        "ST_Within",
+        Tutorial.sequelize.col("location"),
+        Tutorial.sequelize.fn(
+          "ST_GeomFromGeoJSON",
+          '{"type":"Polygon","coordinates":[[' + areaJson + "]]}"
+        )
+      ),
+      true
+    );
+  }
 
   if (userStatus == "user") {
     conditionIl = { ...conditionIl, published: true };
   }
-  Tutorial.findAndCountAll({ where: conditionIl, limit, offset })
+  Tutorial.findAndCountAll({
+    where: locationCondition,
+    conditionIl,
+    limit,
+    offset,
+  })
     .then((data) => {
       const response = getPagingData(data, page, limit);
 
@@ -204,8 +222,7 @@ exports.findAllgetAll = (req, res) => {
 
 //Find all tutorials inside the geojson polygon
 exports.findAllGeo = (req, res) => {
-  const { geojson, yontem } = req.query;
-  console.log(yontem);
+  const { geojson, yontem, userStatus } = req.query;
 
   // const datdat = Tutorial.sequelize.fn(
   //   "ST_GeomFromGeoJSON",
@@ -217,6 +234,11 @@ exports.findAllGeo = (req, res) => {
   //   geojson,
   //   Tutorial.sequelize.col("location")
   // );
+  var conditionStatus = null;
+  if (userStatus == "user") {
+    conditionStatus = { published: true };
+  }
+  console.log(conditionStatus);
   var conditionMethod = yontem ? { yontem: { [Op.or]: yontem } } : null;
   var locationCondition = Tutorial.sequelize.where(
     Tutorial.sequelize.fn(
@@ -231,7 +253,7 @@ exports.findAllGeo = (req, res) => {
   );
 
   Tutorial.findAll({
-    where: [locationCondition, conditionMethod],
+    where: [locationCondition, conditionMethod, conditionStatus],
   })
     .then((data) => {
       res.send(data);
