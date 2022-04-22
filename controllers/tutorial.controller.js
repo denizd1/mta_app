@@ -143,12 +143,16 @@ exports.findAll = (req, res) => {
   fields.forEach((item) => (filters[item] = { [Op.iLike]: `%${il}%` }));
 
   var conditionIl = il ? { [Op.or]: filters } : null;
+  console.log(conditionIl, page, size);
   if (ilce) {
     conditionIl = il
       ? { il: { [Op.like]: `%${il}%` }, ilce: { [Op.like]: `%${ilce}%` } }
       : null;
   }
   var locationCondition = null;
+  if (userStatus == "user") {
+    conditionIl = { ...conditionIl, published: true };
+  }
   if (areaJson) {
     locationCondition = Tutorial.sequelize.where(
       Tutorial.sequelize.fn(
@@ -161,28 +165,36 @@ exports.findAll = (req, res) => {
       ),
       true
     );
-  }
-
-  if (userStatus == "user") {
-    conditionIl = { ...conditionIl, published: true };
-  }
-  Tutorial.findAndCountAll({
-    where: locationCondition,
-    conditionIl,
-    limit,
-    offset,
-  })
-    .then((data) => {
-      const response = getPagingData(data, page, limit);
-
-      res.send(response);
+    Tutorial.findAndCountAll({
+      where: [locationCondition, limit, offset],
     })
-    .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving tutorials.",
+      .then((data) => {
+        const response = getPagingData(data, page, limit);
+        res.send(response);
+      })
+      .catch((err) => {
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while retrieving tutorials.",
+        });
       });
-    });
+  } else {
+    Tutorial.findAndCountAll({
+      where: conditionIl,
+      limit,
+      offset,
+    })
+      .then((data) => {
+        const response = getPagingData(data, page, limit);
+        res.send(response);
+      })
+      .catch((err) => {
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while retrieving tutorials.",
+        });
+      });
+  }
 };
 
 exports.findAllgetAll = (req, res) => {
@@ -331,21 +343,21 @@ exports.delete = (req, res) => {
 };
 
 // Delete all Tutorials from the database.
-exports.deleteAll = (req, res) => {
-  Tutorial.destroy({
-    where: {},
-    truncate: false,
-  })
-    .then((nums) => {
-      res.send({ message: `${nums} Tutorials were deleted successfully!` });
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while removing all tutorials.",
-      });
-    });
-};
+// exports.deleteAll = (req, res) => {
+//   Tutorial.destroy({
+//     where: {},
+//     truncate: false,
+//   })
+//     .then((nums) => {
+//       res.send({ message: `${nums} Tutorials were deleted successfully!` });
+//     })
+//     .catch((err) => {
+//       res.status(500).send({
+//         message:
+//           err.message || "Some error occurred while removing all tutorials.",
+//       });
+//     });
+// };
 
 // find all published Tutorial
 exports.findAllPublished = (req, res) => {
