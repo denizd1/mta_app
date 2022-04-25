@@ -150,9 +150,11 @@ exports.findAll = (req, res) => {
       : null;
   }
   var locationCondition = null;
+  var conditionStatus = null;
   if (userStatus == "user") {
-    conditionIl = { ...conditionIl, published: true };
+    conditionStatus = { published: true };
   }
+
   if (areaJson) {
     locationCondition = Tutorial.sequelize.where(
       Tutorial.sequelize.fn(
@@ -166,7 +168,7 @@ exports.findAll = (req, res) => {
       true
     );
     Tutorial.findAndCountAll({
-      where: [locationCondition, limit, offset],
+      where: [locationCondition, conditionStatus, limit, offset],
     })
       .then((data) => {
         const response = getPagingData(data, page, limit);
@@ -179,6 +181,9 @@ exports.findAll = (req, res) => {
         });
       });
   } else {
+    if (userStatus == "user") {
+      conditionIl = { ...conditionIl, published: true };
+    }
     Tutorial.findAndCountAll({
       where: conditionIl,
       limit,
@@ -218,7 +223,7 @@ exports.findAllgetAll = (req, res) => {
       conditionDistrict,
       conditionMethod,
       conditionSubMethod,
-      conditionStatus ? conditionStatus : null
+      conditionStatus
     ),
   })
     .then((data) => {
@@ -235,22 +240,10 @@ exports.findAllgetAll = (req, res) => {
 //Find all tutorials inside the geojson polygon
 exports.findAllGeo = (req, res) => {
   const { geojson, yontem, userStatus } = req.query;
-
-  // const datdat = Tutorial.sequelize.fn(
-  //   "ST_GeomFromGeoJSON",
-  //   '{"type":"Polygon","coordinates":[[' + geojson + "]]}"
-  // );
-  // console.log(datdat);
-  // var location = Tutorial.sequelize.fn(
-  //   "ST_WITHIN",
-  //   geojson,
-  //   Tutorial.sequelize.col("location")
-  // );
   var conditionStatus = null;
   if (userStatus == "user") {
     conditionStatus = { published: true };
   }
-  console.log(conditionStatus);
   var conditionMethod = yontem ? { yontem: { [Op.or]: yontem } } : null;
   var locationCondition = Tutorial.sequelize.where(
     Tutorial.sequelize.fn(
@@ -295,7 +288,7 @@ exports.findOne = (req, res) => {
 // Update a Tutorial by the id in the request
 exports.update = (req, res) => {
   const id = req.autosan.params.id;
-
+  console.log(req.autosan.body);
   Tutorial.update(req.autosan.body, {
     where: { id: id },
   })
