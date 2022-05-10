@@ -23,6 +23,9 @@ module.exports = (app) => {
   // Retrieve all published Tutorials
   router.get("/published", tutorials.findAllPublished);
 
+  //Retrieve all unpublished Tutorials
+  router.get("/unpublished", tutorials.findAllUnpublished);
+
   // Retrieve a single Tutorial with id
   router.get("/:id", expAutoSan.route, tutorials.findOne);
 

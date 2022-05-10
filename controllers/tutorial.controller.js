@@ -288,7 +288,6 @@ exports.findOne = (req, res) => {
 // Update a Tutorial by the id in the request
 exports.update = (req, res) => {
   const id = req.autosan.params.id;
-  console.log(req.autosan.body);
   Tutorial.update(req.autosan.body, {
     where: { id: id },
   })
@@ -358,6 +357,23 @@ exports.findAllPublished = (req, res) => {
   const { limit, offset } = getPagination(page, size);
 
   Tutorial.findAndCountAll({ where: { published: true }, limit, offset })
+    .then((data) => {
+      const response = getPagingData(data, page, limit);
+      res.send(response);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving tutorials.",
+      });
+    });
+};
+//find all unpublished tutorial
+exports.findAllUnpublished = (req, res) => {
+  const { page, size } = req.query;
+  const { limit, offset } = getPagination(page, size);
+
+  Tutorial.findAndCountAll({ where: { published: false }, limit, offset })
     .then((data) => {
       const response = getPagingData(data, page, limit);
       res.send(response);
