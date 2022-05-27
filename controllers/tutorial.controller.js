@@ -205,12 +205,12 @@ exports.findAll = (req, res) => {
 exports.findAllgetAll = (req, res) => {
   const { il, ilce, yontem, alt_yontem, userStatus } = req.query;
 
-  var conditionCity = il ? { il: { [Op.like]: `%${il}%` } } : null;
-  var conditionDistrict = ilce ? { ilce: { [Op.like]: `%${ilce}%` } } : null;
+  var conditionCity = il ? { il: { [Op.iLike]: `%${il}%` } } : null;
+  var conditionDistrict = ilce ? { ilce: { [Op.iLike]: `%${ilce}%` } } : null;
   var conditionMethod = yontem ? { yontem: { [Op.or]: yontem } } : null;
 
   var conditionSubMethod = alt_yontem
-    ? { alt_yontem: { [Op.like]: `%${alt_yontem}%` } }
+    ? { alt_yontem: { [Op.iLike]: `%${alt_yontem}%` } }
     : null;
   var conditionStatus = null;
   if (userStatus == "user") {
