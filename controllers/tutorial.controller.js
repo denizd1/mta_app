@@ -143,7 +143,6 @@ exports.findAll = (req, res) => {
   fields.forEach((item) => (filters[item] = { [Op.iLike]: `%${il}%` }));
 
   var conditionIl = il ? { [Op.or]: filters } : null;
-  console.log(conditionIl, page, size);
   if (ilce) {
     conditionIl = il
       ? { il: { [Op.like]: `%${il}%` }, ilce: { [Op.like]: `%${ilce}%` } }
@@ -203,9 +202,26 @@ exports.findAll = (req, res) => {
 };
 
 exports.findAllgetAll = (req, res) => {
-  const { il, ilce, yontem, alt_yontem, userStatus } = req.query;
+  const { il, ilce, yontem, alt_yontem, userStatus, requestFlag } = req.query;
+  if (requestFlag == "userSearch") {
+    const fields = Object.keys(
+      _.pick(Tutorial.rawAttributes, [
+        "nokta_adi",
+        "calisma_amaci",
+        "il",
+        "ilce",
+        "yontem",
+        "alt_yontem",
+      ])
+    );
+    const filters = {};
 
-  var conditionCity = il ? { il: { [Op.iLike]: `%${il}%` } } : null;
+    fields.forEach((item) => (filters[item] = { [Op.iLike]: `%${il}%` }));
+
+    var conditionCity = il ? { [Op.or]: filters } : null;
+  } else {
+    conditionCity = il ? { il: { [Op.iLike]: `%${il}%` } } : null;
+  }
   var conditionDistrict = ilce ? { ilce: { [Op.iLike]: `%${ilce}%` } } : null;
   var conditionMethod = yontem ? { yontem: { [Op.or]: yontem } } : null;
 
