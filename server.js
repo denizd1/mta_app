@@ -2,7 +2,8 @@ require("v8-compile-cache");
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-var session = require("express-session");
+const session = require("express-session");
+const compression = require("compression");
 
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
@@ -16,6 +17,8 @@ const Role = db.role;
 const csrf = require("csurf");
 const csrfProtection = csrf();
 const pathe = require("path");
+
+app.use(compression()); //Compress all routes
 
 require("dotenv").config({ path: pathe.resolve(__dirname, "/.env") });
 
