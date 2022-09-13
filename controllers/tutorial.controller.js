@@ -126,7 +126,7 @@ exports.create = (req, res) => {
 
 // Retrieve all Tutorials from the database.
 exports.findAll = (req, res) => {
-  const { page, size, il, ilce, userStatus, areaJson } = req.query;
+  const { page, size, il, ilce, yontem, userStatus, areaJson } = req.query;
   const { limit, offset } = getPagination(page, size);
   const fields = Object.keys(
     _.pick(Tutorial.rawAttributes, [
@@ -143,11 +143,26 @@ exports.findAll = (req, res) => {
   fields.forEach((item) => (filters[item] = { [Op.iLike]: `%${il}%` }));
 
   var conditionIl = il ? { [Op.or]: filters } : null;
+  if (yontem) {
+    conditionIl = il
+      ? { il: { [Op.like]: `%${il}%` }, yontem: { [Op.or]: yontem } }
+      : null;
+  }
   if (ilce) {
     conditionIl = il
       ? { il: { [Op.like]: `%${il}%` }, ilce: { [Op.like]: `%${ilce}%` } }
       : null;
+    if (yontem) {
+      conditionIl = il
+        ? {
+            il: { [Op.like]: `%${il}%` },
+            ilce: { [Op.like]: `%${ilce}%` },
+            yontem: { [Op.or]: yontem },
+          }
+        : null;
+    }
   }
+
   var locationCondition = null;
   var conditionStatus = null;
   if (userStatus == "user") {
@@ -167,7 +182,13 @@ exports.findAll = (req, res) => {
       true
     );
     Tutorial.findAndCountAll({
-      where: [locationCondition, conditionStatus, limit, offset],
+      where: [
+        locationCondition,
+        conditionMethod,
+        conditionStatus,
+        limit,
+        offset,
+      ],
     })
       .then((data) => {
         const response = getPagingData(data, page, limit);
