@@ -1,21 +1,35 @@
+require("v8-compile-cache");
 const express = require("express");
 const cors = require("cors");
-var path = require("path");
 const cookieParser = require("cookie-parser");
-var session = require("express-session");
+const session = require("express-session");
+const compression = require("compression");
+
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const db = require(__dirname + "/models");
 const fs = require("fs");
 
-const publicPath = path.join(__dirname, "./views");
+const path = __dirname + "/views/";
 const app = express();
 const Role = db.role;
+
 const csrf = require("csurf");
 const csrfProtection = csrf();
+const pathe = require("path");
 
-require("dotenv").config({ path: path.resolve(__dirname, "./.env") });
+app.use(compression()); //Compress all routes
 
+require("dotenv").config({ path: pathe.resolve(__dirname, "/.env") });
+
+// var whitelist = ["http://0.0.0.0:8081"];
+// var corsOptions = {
+//   origin: function (origin, callback) {
+//     var originIsWhitelisted = whitelist.indexOf(origin) !== -1;
+//     callback(null, originIsWhitelisted);
+//   },
+//   credentials: true,
+// };
 app.use(cors());
 
 //Limiter
@@ -27,8 +41,7 @@ const limiter = rateLimit({
 });
 
 app.use(limiter);
-app.use(express.static(publicPath));
-
+app.use(express.static(path));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
@@ -40,7 +53,6 @@ app.use(
 );
 app.use(cookieParser());
 app.use(helmet());
-
 app.use(csrfProtection);
 
 app.get("/api/getcsrftoken", csrfProtection, function (req, res) {
@@ -53,17 +65,13 @@ require(__dirname + "/routes/user.routes")(app);
 
 db.sequelize.sync();
 // db.sequelize.sync({force: true}).then(() => {
+//   console.log('Drop and Resync Database with { force: true }');
 //   initial();
 // });
 
-// app.get("/", function (req, res) {
-//   res.sendFile(__dirname + "/views/index.html");
-// });
-app.get("/api/getcsrftoken", csrfProtection, function (req, res) {
-  return res.json({ csrfToken: req.csrfToken() });
+app.get("/", function (req, res) {
+  res.sendFile(path + "index.html");
 });
-//view engine setup
-app.set("views", path.join(__dirname, "/views"));
 
 app.get("/api/getGeoJson:val", function (req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -84,14 +92,10 @@ app.get("/api/getGeoJson:val", function (req, res) {
 });
 
 // set port, listen for requests
-// const PORT = process.env.PORT || 8080;
-// app.listen(PORT, () => {
-//   console.log(`Server is running on port ${PORT}.`);
-// });
-const server = app.listen(8080, () =>
-  console.log(`Express server listening on port 8000`)
-);
-module.exports = app;
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}.`);
+});
 
 function initial() {
   Role.create({
