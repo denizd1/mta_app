@@ -30,10 +30,10 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
       },
       jeofizik_arsiv_no: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
       },
       derleme_no: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
       },
       cd_no: {
         type: Sequelize.STRING,
@@ -45,13 +45,13 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
       },
       x: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
       },
       y: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
       },
       z: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
       },
       profil_baslangic_x: {
         type: Sequelize.STRING,
