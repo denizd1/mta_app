@@ -7,6 +7,8 @@ checkDuplicatenoktaAdi = (req, res, next) => {
       nokta_adi: req.body.nokta_adi,
       alt_yontem: req.body.alt_yontem,
       proje_kodu: req.body.proje_kodu,
+      il: req.body.il,
+      ilce: req.body.ilce,
     },
   }).then((tutorial) => {
     if (tutorial) {
