@@ -208,10 +208,10 @@ exports.findAll = (req, res) => {
 };
 
 exports.findAllgetAll = (req, res) => {
-  const { il, ilce, yontem, alt_yontem, userStatus, requestFlag } = req.query;
+  const { il, ilce, yontem, userStatus, requestFlag } = req.query;
   var condition = null;
   condition = il ? { il: { [Op.iLike]: `%${il}%` } } : null;
-
+  var filters = {};
   if (requestFlag == "userSearch") {
     var fields = Object.keys(
       _.pick(Tutorial.rawAttributes, [
@@ -227,6 +227,18 @@ exports.findAllgetAll = (req, res) => {
     fields.forEach((item) => (filters[item] = { [Op.iLike]: `%${il}%` }));
     condition = il ? { [Op.or]: filters } : null;
   }
+  console.log(
+    Object.assign(
+      {},
+      condition,
+      ilce ? { ilce: { [Op.iLike]: `%${ilce}%` } } : null,
+      yontem ? { yontem: { [Op.or]: yontem } } : null,
+      //published will be true if the userStatus is 'user'. if not, it can be false or true.
+      userStatus == "user"
+        ? { published: true }
+        : { published: { [Op.or]: [true, false] } }
+    )
+  );
 
   Tutorial.findAll({
     where: Object.assign(
