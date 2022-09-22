@@ -126,50 +126,32 @@ exports.create = (req, res) => {
 
 // Retrieve all Tutorials from the database.
 exports.findAll = (req, res) => {
-  const { page, size, il, ilce, yontem, userStatus, areaJson } = req.query;
+  const { page, size, il, ilce, yontem, userStatus, requestFlag, areaJson } =
+    req.query;
   const { limit, offset } = getPagination(page, size);
-  const fields = Object.keys(
-    _.pick(Tutorial.rawAttributes, [
-      "nokta_adi",
-      "calisma_amaci",
-      "il",
-      "ilce",
-      "yontem",
-      "alt_yontem",
-    ])
-  );
-  const filters = {};
+  var filters = {};
+  var condition = null;
+  condition = il ? { il: { [Op.iLike]: `%${il}%` } } : null;
 
-  fields.forEach((item) => (filters[item] = { [Op.iLike]: `%${il}%` }));
+  if (requestFlag == "userSearch") {
+    var fields = Object.keys(
+      _.pick(Tutorial.rawAttributes, [
+        "nokta_adi",
+        "calisma_amaci",
+        "il",
+        "ilce",
+        "yontem",
+        "alt_yontem",
+      ])
+    );
 
-  var conditionIl = il ? { [Op.or]: filters } : null;
-  if (yontem) {
-    conditionIl = il
-      ? { il: { [Op.like]: `%${il}%` }, yontem: { [Op.or]: yontem } }
-      : null;
-  }
-  if (ilce) {
-    conditionIl = il
-      ? { il: { [Op.like]: `%${il}%` }, ilce: { [Op.like]: `%${ilce}%` } }
-      : null;
-    if (yontem) {
-      conditionIl = il
-        ? {
-            il: { [Op.like]: `%${il}%` },
-            ilce: { [Op.like]: `%${ilce}%` },
-            yontem: { [Op.or]: yontem },
-          }
-        : null;
-    }
+    fields.forEach((item) => (filters[item] = { [Op.iLike]: `%${il}%` }));
+    condition = il ? { [Op.or]: filters } : null;
   }
 
   var locationCondition = null;
-  var conditionStatus = null;
-  if (userStatus == "user") {
-    conditionStatus = { published: true };
-  }
 
-  if (areaJson) {
+  if (areaJson != null) {
     locationCondition = Tutorial.sequelize.where(
       Tutorial.sequelize.fn(
         "ST_Within",
@@ -181,51 +163,57 @@ exports.findAll = (req, res) => {
       ),
       true
     );
-    Tutorial.findAndCountAll({
-      where: [
-        locationCondition,
-        conditionMethod,
-        conditionStatus,
-        limit,
-        offset,
-      ],
-    })
-      .then((data) => {
-        const response = getPagingData(data, page, limit);
-        res.send(response);
-      })
-      .catch((err) => {
-        res.status(500).send({
-          message:
-            err.message || "Some error occurred while retrieving tutorials.",
-        });
-      });
-  } else {
-    if (userStatus == "user") {
-      conditionIl = { ...conditionIl, published: true };
-    }
-    Tutorial.findAndCountAll({
-      where: conditionIl,
-      limit,
-      offset,
-    })
-      .then((data) => {
-        const response = getPagingData(data, page, limit);
-        res.send(response);
-      })
-      .catch((err) => {
-        res.status(500).send({
-          message:
-            err.message || "Some error occurred while retrieving tutorials.",
-        });
-      });
   }
+  Tutorial.findAndCountAll({
+    //when userStatus is user, where contains locationcondition, yontem, limit and offset
+    //use only locationcondition, yontem, limit and offset
+    where: {
+      [Op.and]: [condition, locationCondition],
+    },
+    limit,
+    offset,
+
+    where:
+      locationCondition != null
+        ? [
+            locationCondition,
+            yontem ? { yontem: { [Op.or]: yontem } } : null,
+            limit,
+            offset,
+          ]
+        : Object.assign(
+            {},
+            condition,
+            ilce ? { ilce: { [Op.iLike]: `%${ilce}%` } } : null,
+            yontem ? { yontem: { [Op.or]: yontem } } : null,
+            //published will be true if the userStatus is 'user'. if not, it can be false or true.
+            userStatus == "user"
+              ? { published: true }
+              : { published: { [Op.or]: [true, false] } }
+          ),
+
+    limit,
+    offset,
+  })
+    .then((data) => {
+      const response = getPagingData(data, page, limit);
+      res.send(response);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving tutorials.",
+      });
+    });
 };
 
 exports.findAllgetAll = (req, res) => {
   const { il, ilce, yontem, alt_yontem, userStatus, requestFlag } = req.query;
+  var condition = null;
+  condition = il ? { il: { [Op.iLike]: `%${il}%` } } : null;
+
   if (requestFlag == "userSearch") {
-    const fields = Object.keys(
+    var fields = Object.keys(
       _.pick(Tutorial.rawAttributes, [
         "nokta_adi",
         "calisma_amaci",
@@ -235,32 +223,21 @@ exports.findAllgetAll = (req, res) => {
         "alt_yontem",
       ])
     );
-    const filters = {};
 
     fields.forEach((item) => (filters[item] = { [Op.iLike]: `%${il}%` }));
-
-    var conditionCity = il ? { [Op.or]: filters } : null;
-  } else {
-    conditionCity = il ? { il: { [Op.iLike]: `%${il}%` } } : null;
+    condition = il ? { [Op.or]: filters } : null;
   }
-  var conditionDistrict = ilce ? { ilce: { [Op.iLike]: `%${ilce}%` } } : null;
-  var conditionMethod = yontem ? { yontem: { [Op.or]: yontem } } : null;
 
-  var conditionSubMethod = alt_yontem
-    ? { alt_yontem: { [Op.iLike]: `%${alt_yontem}%` } }
-    : null;
-  var conditionStatus = null;
-  if (userStatus == "user") {
-    conditionStatus = { published: true };
-  }
   Tutorial.findAll({
     where: Object.assign(
       {},
-      conditionCity,
-      conditionDistrict,
-      conditionMethod,
-      conditionSubMethod,
-      conditionStatus
+      condition,
+      ilce ? { ilce: { [Op.iLike]: `%${ilce}%` } } : null,
+      yontem ? { yontem: { [Op.or]: yontem } } : null,
+      //published will be true if the userStatus is 'user'. if not, it can be false or true.
+      userStatus == "user"
+        ? { published: true }
+        : { published: { [Op.or]: [true, false] } }
     ),
   })
     .then((data) => {
@@ -370,23 +347,6 @@ exports.delete = (req, res) => {
       });
     });
 };
-
-// Delete all Tutorials from the database.
-// exports.deleteAll = (req, res) => {
-//   Tutorial.destroy({
-//     where: {},
-//     truncate: false,
-//   })
-//     .then((nums) => {
-//       res.send({ message: `${nums} Tutorials were deleted successfully!` });
-//     })
-//     .catch((err) => {
-//       res.status(500).send({
-//         message:
-//           err.message || "Some error occurred while removing all tutorials.",
-//       });
-//     });
-// };
 
 // find all published Tutorial
 exports.findAllPublished = (req, res) => {
