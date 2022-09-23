@@ -239,6 +239,9 @@ module.exports = (sequelize, Sequelize) => {
       lon: {
         type: Sequelize.DOUBLE,
       },
+      editorname: {
+        type: Sequelize.STRING,
+      },
     },
     {
       charset: "utf8",

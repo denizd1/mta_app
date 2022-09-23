@@ -109,6 +109,7 @@ exports.create = (req, res) => {
     published: req.autosan.body.published ? req.body.published : false,
     lat: req.autosan.body.lat,
     lon: req.autosan.body.lon,
+    editorname: req.autosan.body.editorname,
   };
 
   // Save Tutorial in the database
