@@ -168,17 +168,12 @@ exports.findAll = (req, res) => {
   Tutorial.findAndCountAll({
     //when userStatus is user, where contains locationcondition, yontem, limit and offset
     //use only locationcondition, yontem, limit and offset
-    where: {
-      [Op.and]: [condition, locationCondition],
-    },
-    limit,
-    offset,
 
     where:
       locationCondition != null
         ? [
             locationCondition,
-            yontem ? { yontem: { [Op.or]: yontem } } : null,
+            yontem ? { alt_yontem: { [Op.or]: yontem } } : null,
             limit,
             offset,
           ]
@@ -186,7 +181,7 @@ exports.findAll = (req, res) => {
             {},
             condition,
             ilce ? { ilce: { [Op.iLike]: `%${ilce}%` } } : null,
-            yontem ? { yontem: { [Op.or]: yontem } } : null,
+            yontem ? { alt_yontem: { [Op.or]: yontem } } : null,
             //published will be true if the userStatus is 'user'. if not, it can be false or true.
             userStatus == "user"
               ? { published: true }
@@ -233,7 +228,7 @@ exports.findAllgetAll = (req, res) => {
       {},
       condition,
       ilce ? { ilce: { [Op.iLike]: `%${ilce}%` } } : null,
-      yontem ? { yontem: { [Op.or]: yontem } } : null,
+      yontem ? { alt_yontem: { [Op.or]: yontem } } : null,
       //published will be true if the userStatus is 'user'. if not, it can be false or true.
       userStatus == "user"
         ? { published: true }
@@ -246,7 +241,7 @@ exports.findAllgetAll = (req, res) => {
       {},
       condition,
       ilce ? { ilce: { [Op.iLike]: `%${ilce}%` } } : null,
-      yontem ? { yontem: { [Op.or]: yontem } } : null,
+      yontem ? { alt_yontem: { [Op.or]: yontem } } : null,
       //published will be true if the userStatus is 'user'. if not, it can be false or true.
       userStatus == "user"
         ? { published: true }
@@ -271,7 +266,7 @@ exports.findAllGeo = (req, res) => {
   if (userStatus == "user") {
     conditionStatus = { published: true };
   }
-  var conditionMethod = yontem ? { yontem: { [Op.or]: yontem } } : null;
+  var conditionMethod = yontem ? { alt_yontem: { [Op.or]: yontem } } : null;
   var locationCondition = Tutorial.sequelize.where(
     Tutorial.sequelize.fn(
       "ST_Within",
