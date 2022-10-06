@@ -15,7 +15,6 @@ const getPagingData = (data, page, limit) => {
   const { count: totalItems, rows: tutorials } = data;
   const currentPage = page ? +page : 0;
   const totalPages = Math.ceil(totalItems / limit);
-
   return { totalItems, tutorials, totalPages, currentPage };
 };
 
@@ -127,28 +126,24 @@ exports.create = (req, res) => {
 
 // Retrieve all Tutorials from the database.
 exports.findAll = (req, res) => {
-  const { page, size, il, ilce, yontem, userStatus, requestFlag, areaJson } =
-    req.query;
+  const { page, size, il, ilce, yontem, userStatus, areaJson } = req.query;
   const { limit, offset } = getPagination(page, size);
   var filters = {};
   var condition = null;
-  condition = il ? { il: { [Op.iLike]: `%${il}%` } } : null;
 
-  if (requestFlag == "userSearch") {
-    var fields = Object.keys(
-      _.pick(Tutorial.rawAttributes, [
-        "nokta_adi",
-        "calisma_amaci",
-        "il",
-        "ilce",
-        "yontem",
-        "alt_yontem",
-      ])
-    );
+  var fields = Object.keys(
+    _.pick(Tutorial.rawAttributes, [
+      "nokta_adi",
+      "calisma_amaci",
+      "il",
+      "ilce",
+      "yontem",
+      "alt_yontem",
+    ])
+  );
 
-    fields.forEach((item) => (filters[item] = { [Op.iLike]: `%${il}%` }));
-    condition = il ? { [Op.or]: filters } : null;
-  }
+  fields.forEach((item) => (filters[item] = { [Op.iLike]: `%${il}%` }));
+  condition = il ? { [Op.or]: filters } : null;
 
   var locationCondition = null;
 
@@ -165,6 +160,7 @@ exports.findAll = (req, res) => {
       true
     );
   }
+
   Tutorial.findAndCountAll({
     //when userStatus is user, where contains locationcondition, yontem, limit and offset
     //use only locationcondition, yontem, limit and offset
@@ -223,18 +219,6 @@ exports.findAllgetAll = (req, res) => {
     fields.forEach((item) => (filters[item] = { [Op.iLike]: `%${il}%` }));
     condition = il ? { [Op.or]: filters } : null;
   }
-  console.log(
-    Object.assign(
-      {},
-      condition,
-      ilce ? { ilce: { [Op.iLike]: `%${ilce}%` } } : null,
-      yontem ? { alt_yontem: { [Op.or]: yontem } } : null,
-      //published will be true if the userStatus is 'user'. if not, it can be false or true.
-      userStatus == "user"
-        ? { published: true }
-        : { published: { [Op.or]: [true, false] } }
-    )
-  );
 
   Tutorial.findAll({
     where: Object.assign(
