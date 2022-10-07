@@ -9,8 +9,7 @@ checkDuplicatenoktaAdi = (req, res, next) => {
       proje_kodu: req.body.proje_kodu,
       il: req.body.il,
       ilce: req.body.ilce,
-      jeofizik_arsiv_no: req.body.jeofizik_arsiv_no,
-      derleme_no: req.body.derleme_no,
+      calisma_tarihi: req.body.calisma_tarihi,
     },
   }).then((tutorial) => {
     if (tutorial) {
