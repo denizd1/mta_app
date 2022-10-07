@@ -9,11 +9,13 @@ checkDuplicatenoktaAdi = (req, res, next) => {
       proje_kodu: req.body.proje_kodu,
       il: req.body.il,
       ilce: req.body.ilce,
+      jeofizik_arsiv_no: req.body.jeofizik_arsiv_no,
+      derleme_no: req.body.derleme_no,
     },
   }).then((tutorial) => {
     if (tutorial) {
       res.status(400).send({
-        message: `Nokta Adı : ${req.body.nokta_adi}, Proje Kodu : ${req.body.proje_kodu}, Alt Yöntem : ${req.body.alt_yontem}`,
+        message: `Nokta Adı : ${req.body.nokta_adi}, Jeofizik Arşiv No : ${req.body.jeofizik_arsiv_no}, Derleme No : ${req.body.derleme_no}`,
       });
       return;
     }
