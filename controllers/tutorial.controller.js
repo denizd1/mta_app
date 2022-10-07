@@ -169,7 +169,14 @@ exports.findAll = (req, res) => {
       locationCondition != null
         ? [
             locationCondition,
-            yontem ? { alt_yontem: { [Op.or]: yontem } } : null,
+            yontem
+              ? {
+                  [Op.or]: [
+                    { yontem: { [Op.or]: yontem } },
+                    { alt_yontem: { [Op.or]: yontem } },
+                  ],
+                }
+              : null,
             limit,
             offset,
           ]
@@ -177,7 +184,14 @@ exports.findAll = (req, res) => {
             {},
             condition,
             ilce ? { ilce: { [Op.iLike]: `%${ilce}%` } } : null,
-            yontem ? { alt_yontem: { [Op.or]: yontem } } : null,
+            yontem
+              ? {
+                  [Op.or]: [
+                    { yontem: { [Op.or]: yontem } },
+                    { alt_yontem: { [Op.or]: yontem } },
+                  ],
+                }
+              : null,
             //published will be true if the userStatus is 'user'. if not, it can be false or true.
             userStatus == "user"
               ? { published: true }
@@ -225,7 +239,14 @@ exports.findAllgetAll = (req, res) => {
       {},
       condition,
       ilce ? { ilce: { [Op.iLike]: `%${ilce}%` } } : null,
-      yontem ? { alt_yontem: { [Op.or]: yontem } } : null,
+      yontem
+        ? {
+            [Op.or]: [
+              { yontem: { [Op.or]: yontem } },
+              { alt_yontem: { [Op.or]: yontem } },
+            ],
+          }
+        : null,
       //published will be true if the userStatus is 'user'. if not, it can be false or true.
       userStatus == "user"
         ? { published: true }
@@ -250,7 +271,12 @@ exports.findAllGeo = (req, res) => {
   if (userStatus == "user") {
     conditionStatus = { published: true };
   }
-  var conditionMethod = yontem ? { alt_yontem: { [Op.or]: yontem } } : null;
+  var conditionMethod = {
+    [Op.or]: [
+      { yontem: { [Op.or]: yontem } },
+      { alt_yontem: { [Op.or]: yontem } },
+    ],
+  };
   var locationCondition = Tutorial.sequelize.where(
     Tutorial.sequelize.fn(
       "ST_Within",
