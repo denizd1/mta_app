@@ -17,7 +17,7 @@ module.exports = (app) => {
   // Create a new Tutorial
   router.post(
     "/",
-    verifyTutorial.checkDuplicatenoktaAdi,
+    // verifyTutorial.checkDuplicatenoktaAdi,
     expAutoSan.route,
     tutorials.create
   );
@@ -35,7 +35,7 @@ module.exports = (app) => {
   //Retrieve all unpublished Tutorials
   router.get(
     "/unpublished",
-    [authJwt.verifyToken],
+    [authJwt.verifyToken, authJwt.isAdmin],
     tutorials.findAllUnpublished
   );
 
@@ -46,7 +46,6 @@ module.exports = (app) => {
     expAutoSan.route,
     tutorials.findOne
   );
-  console.log(authJwt.verifyToken, authJwt.isAdmin);
   // Update a Tutorial with id
   router.put(
     "/:id",
