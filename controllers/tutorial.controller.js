@@ -43,176 +43,238 @@ exports.create = (req, res) => {
       : null,
     ham_veri: req.autosan.body.ham_veri ? req.autosan.body.ham_veri : null,
     calisma_tarihi: req.autosan.body.calisma_tarihi
-      ? req.autosan.body.calisma_tarihi
+      ? req.autosan.body.calisma_tarihi.toString()
       : null,
     proje_kodu: req.autosan.body.proje_kodu
       ? req.autosan.body.proje_kodu
       : null,
-    kuyu_arsiv_no: req.autosan.body.kuyu_arsiv_no
-      ? req.autosan.body.kuyu_arsiv_no
-      : null,
-    jeofizik_arsiv_no: req.autosan.body.jeofizik_arsiv_no
-      ? req.autosan.body.jeofizik_arsiv_no
-      : null,
-    derleme_no: req.autosan.body.derleme_no
-      ? req.autosan.body.derleme_no
-      : null,
-    cd_no: req.autosan.body.cd_no ? req.autosan.body.cd_no : null,
+    kuyu_arsiv_no:
+      req.autosan.body.kuyu_arsiv_no !== null
+        ? req.autosan.body.kuyu_arsiv_no.toString()
+        : null,
+    jeofizik_arsiv_no:
+      req.autosan.body.jeofizik_arsiv_no !== null
+        ? req.autosan.body.jeofizik_arsiv_no.toString()
+        : null,
+    derleme_no:
+      req.autosan.body.derleme_no !== null
+        ? req.autosan.body.derleme_no.toString()
+        : null,
+    cd_no:
+      req.autosan.body.cd_no !== null
+        ? req.autosan.body.cd_no.toString()
+        : null,
     il: req.autosan.body.il ? req.autosan.body.il : null,
     ilce: req.autosan.body.ilce ? req.autosan.body.ilce : null,
-    x: req.autosan.body.x ? req.autosan.body.x.toString() : null,
-    y: req.autosan.body.y ? req.autosan.body.y.toString() : null,
-    z: req.autosan.body.z ? req.autosan.body.z.toString() : null,
-    profil_baslangic_x: req.autosan.body.profil_baslangic_x
-      ? req.autosan.body.profil_baslangic_x
-      : null,
-    profil_baslangic_y: req.autosan.body.profil_baslangic_y
-      ? req.autosan.body.profil_baslangic_y
-      : null,
-    profil_bitis_x: req.autosan.body.profil_bitis_x
-      ? req.autosan.body.profil_bitis_x
-      : null,
-    profil_bitis_y: req.autosan.body.profil_bitis_y
-      ? req.autosan.body.profil_bitis_y
-      : null,
-    zone: req.autosan.body.zone ? req.autosan.body.zone.toString() : null,
-    datum: req.autosan.body.datum ? req.autosan.body.datum : null,
-    besyuzbin: req.autosan.body.besyuzbin ? req.autosan.body.besyuzbin : null,
-    yuzbin: req.autosan.body.yuzbin ? req.autosan.body.yuzbin : null,
-    yirmibesbin: req.autosan.body.yirmibesbin
-      ? req.autosan.body.yirmibesbin
-      : null,
-    olculen_parametre_ler: req.autosan.body.olculen_parametre_ler
-      ? req.autosan.body.olculen_parametre_ler
-      : null,
-    acilim_yonu: req.autosan.body.acilim_yonu
-      ? req.autosan.body.acilim_yonu
-      : null,
-    acilim_yontemi: req.autosan.body.acilim_yontemi
-      ? req.autosan.body.acilim_yontemi
-      : null,
-    frekans_araligi: req.autosan.body.frekans_araligi
-      ? req.autosan.body.frekans_araligi
-      : null,
-    mt_olcu_suresisaat: req.autosan.body.mt_olcu_suresisaat
-      ? req.autosan.body.mt_olcu_suresisaat
-      : null,
-    z_bileseni: req.autosan.body.z_bileseni
-      ? req.autosan.body.z_bileseni
-      : null,
-    amt_olcusu: req.autosan.body.amt_olcusu
-      ? req.autosan.body.amt_olcusu
-      : null,
-    amt_olcu_suresi: req.autosan.body.amt_olcu_suresi
-      ? req.autosan.body.amt_olcu_suresi
-      : null,
-    tem_olcusu: req.autosan.body.tem_olcusu
-      ? req.autosan.body.tem_olcusu
-      : null,
-    kalibrasyon_dosyasi: req.autosan.body.kalibrasyon_dosyasi
-      ? req.autosan.body.kalibrasyon_dosyasi
-      : null,
-    veri_formati: req.autosan.body.veri_formati
-      ? req.autosan.body.veri_formati
-      : null,
-    ab2_m: req.autosan.body.ab2_m ? req.autosan.body.ab2_m : null,
-    derinlik_m_gr: req.autosan.body.derinlik_m_gr
-      ? req.autosan.body.derinlik_m_gr.toString()
-      : null,
-    derinlik_m_neu: req.autosan.body.derinlik_m_neu
-      ? req.autosan.body.derinlik_m_neu.toString()
-      : null,
-    derinlik_m_den: req.autosan.body.derinlik_m_den
-      ? req.autosan.body.derinlik_m_den.toString()
-      : null,
-    derinlik_m_res: req.autosan.body.derinlik_m_res
-      ? req.autosan.body.derinlik_m_res.toString()
-      : null,
-    derinlik_m_sp: req.autosan.body.derinlik_m_sp
-      ? req.autosan.body.derinlik_m_sp.toString()
-      : null,
-    derinlik_m_cal: req.autosan.body.derinlik_m_cal
-      ? req.autosan.body.derinlik_m_cal.toString()
-      : null,
-    derinlik_m_term: req.autosan.body.derinlik_m_term
-      ? req.autosan.body.derinlik_m_term.toString()
-      : null,
-    derinlik_m_sgr: req.autosan.body.derinlik_m_sgr
-      ? req.autosan.body.derinlik_m_sgr.toString()
-      : null,
-    derinlik_m_cbl: req.autosan.body.derinlik_m_cbl
-      ? req.autosan.body.derinlik_m_cbl.toString()
-      : null,
-    derinlik_m_son: req.autosan.body.derinlik_m_son
-      ? req.autosan.body.derinlik_m_son.toString()
-      : null,
-    derinlik_m_ccl: req.autosan.body.derinlik_m_ccl
-      ? req.autosan.body.derinlik_m_ccl.toString()
-      : null,
-    kayit_boyu_sn: req.autosan.body.kayit_boyu_sn
-      ? req.autosan.body.kayit_boyu_sn
-      : null,
-    sweep_suresi_sn: req.autosan.body.sweep_suresi_sn
-      ? req.autosan.body.sweep_suresi_sn
-      : null,
-    sweep_tipi: req.autosan.body.sweep_tipi
-      ? req.autosan.body.sweep_tipi
-      : null,
-    sweep_sayisi: req.autosan.body.sweep_sayisi
-      ? req.autosan.body.sweep_sayisi
-      : null,
-    sweep_frekanslari_sn_hz: req.autosan.body.sweep_frekanslari_sn_hz
-      ? req.autosan.body.sweep_frekanslari_sn_hz
-      : null,
-    sweep_taper_ms: req.autosan.body.sweep_taper_ms
-      ? req.autosan.body.sweep_taper_ms
-      : null,
-    yayim_tipi: req.autosan.body.yayim_tipi
-      ? req.autosan.body.yayim_tipi
-      : null,
-    ofsetm: req.autosan.body.ofsetm ? req.autosan.body.ofsetm : null,
-    jeofon_dizilimi: req.autosan.body.jeofon_dizilimi
-      ? req.autosan.body.jeofon_dizilimi
-      : null,
-    grup_araligim: req.autosan.body.grup_araligim
-      ? req.autosan.body.grup_araligim
-      : null,
-    atis_araligim: req.autosan.body.atis_araligim
-      ? req.autosan.body.atis_araligim
-      : null,
-    ornekleme_araligim: req.autosan.body.ornekleme_araligim
-      ? req.autosan.body.ornekleme_araligim
-      : null,
+    x: req.autosan.body.x !== null ? req.autosan.body.x.toString() : null,
+    y: req.autosan.body.y !== null ? req.autosan.body.y.toString() : null,
+    z: req.autosan.body.z !== null ? req.autosan.body.z.toString() : null,
+    profil_baslangic_x:
+      req.autosan.body.profil_baslangic_x !== null
+        ? req.autosan.body.profil_baslangic_x.toString()
+        : null,
+    profil_baslangic_y:
+      req.autosan.body.profil_baslangic_y !== null
+        ? req.autosan.body.profil_baslangic_y.toString()
+        : null,
+    profil_bitis_x:
+      req.autosan.body.profil_bitis_x !== null
+        ? req.autosan.body.profil_bitis_x.toString()
+        : null,
+    profil_bitis_y:
+      req.autosan.body.profil_bitis_y !== null
+        ? req.autosan.body.profil_bitis_y.toString()
+        : null,
+    zone: req.autosan.body.zone ? req.autosan.body.zone : null,
+    datum:
+      req.autosan.body.datum !== null
+        ? req.autosan.body.datum.toString()
+        : null,
+    besyuzbin:
+      req.autosan.body.besyuzbin !== null
+        ? req.autosan.body.besyuzbin.toString()
+        : null,
+    yuzbin:
+      req.autosan.body.yuzbin !== null
+        ? req.autosan.body.yuzbin.toString()
+        : null,
+    yirmibesbin:
+      req.autosan.body.yirmibesbin !== null
+        ? req.autosan.body.yirmibesbin.toString()
+        : null,
+    olculen_parametre_ler:
+      req.autosan.body.olculen_parametre_ler !== null
+        ? req.autosan.body.olculen_parametre_ler.toString()
+        : null,
+    acilim_yonu:
+      req.autosan.body.acilim_yonu !== null
+        ? req.autosan.body.acilim_yonu.toString()
+        : null,
+    acilim_yontemi:
+      req.autosan.body.acilim_yontemi !== null
+        ? req.autosan.body.acilim_yontemi.toString()
+        : null,
+    frekans_araligi:
+      req.autosan.body.frekans_araligi !== null
+        ? req.autosan.body.frekans_araligi.toString()
+        : null,
+    mt_olcu_suresisaat:
+      req.autosan.body.mt_olcu_suresisaat !== null
+        ? req.autosan.body.mt_olcu_suresisaat.toString()
+        : null,
+    z_bileseni:
+      req.autosan.body.z_bileseni !== null
+        ? req.autosan.body.z_bileseni.toString()
+        : null,
+    amt_olcusu:
+      req.autosan.body.amt_olcusu !== null
+        ? req.autosan.body.amt_olcusu.toString()
+        : null,
+    amt_olcu_suresi:
+      req.autosan.body.amt_olcu_suresi !== null
+        ? req.autosan.body.amt_olcu_suresi.toString()
+        : null,
+    tem_olcusu:
+      req.autosan.body.tem_olcusu !== null
+        ? req.autosan.body.tem_olcusu.toString()
+        : null,
+    kalibrasyon_dosyasi:
+      req.autosan.body.kalibrasyon_dosyasi !== null
+        ? req.autosan.body.kalibrasyon_dosyasi.toString()
+        : null,
+    veri_formati:
+      req.autosan.body.veri_formati !== null
+        ? req.autosan.body.veri_formati.toString()
+        : null,
+    ab2_m: req.autosan.body.ab2_m !== null ? req.autosan.body.ab2_m : null,
+    derinlik_m_gr:
+      req.autosan.body.derinlik_m_gr !== null
+        ? req.autosan.body.derinlik_m_gr.toString()
+        : null,
+    derinlik_m_neu:
+      req.autosan.body.derinlik_m_neu !== null
+        ? req.autosan.body.derinlik_m_neu.toString()
+        : null,
+    derinlik_m_den:
+      req.autosan.body.derinlik_m_den !== null
+        ? req.autosan.body.derinlik_m_den.toString()
+        : null,
+    derinlik_m_res:
+      req.autosan.body.derinlik_m_res !== null
+        ? req.autosan.body.derinlik_m_res.toString()
+        : null,
+    derinlik_m_sp:
+      req.autosan.body.derinlik_m_sp !== null
+        ? req.autosan.body.derinlik_m_sp.toString()
+        : null,
+    derinlik_m_cal:
+      req.autosan.body.derinlik_m_cal !== null
+        ? req.autosan.body.derinlik_m_cal.toString()
+        : null,
+    derinlik_m_term:
+      req.autosan.body.derinlik_m_term !== null
+        ? req.autosan.body.derinlik_m_term.toString()
+        : null,
+    derinlik_m_sgr:
+      req.autosan.body.derinlik_m_sgr !== null
+        ? req.autosan.body.derinlik_m_sgr.toString()
+        : null,
+    derinlik_m_cbl:
+      req.autosan.body.derinlik_m_cbl !== null
+        ? req.autosan.body.derinlik_m_cbl.toString()
+        : null,
+    derinlik_m_son:
+      req.autosan.body.derinlik_m_son !== null
+        ? req.autosan.body.derinlik_m_son.toString()
+        : null,
+    derinlik_m_ccl:
+      req.autosan.body.derinlik_m_ccl !== null
+        ? req.autosan.body.derinlik_m_ccl.toString()
+        : null,
+    kayit_boyu_sn:
+      req.autosan.body.kayit_boyu_sn !== null
+        ? req.autosan.body.kayit_boyu_sn.toString()
+        : null,
+    sweep_suresi_sn:
+      req.autosan.body.sweep_suresi_sn !== null
+        ? req.autosan.body.sweep_suresi_sn.toString()
+        : null,
+    sweep_tipi:
+      req.autosan.body.sweep_tipi !== null
+        ? req.autosan.body.sweep_tipi.toString()
+        : null,
+    sweep_sayisi:
+      req.autosan.body.sweep_sayisi !== null
+        ? req.autosan.body.sweep_sayisi.toString()
+        : null,
+    sweep_frekanslari_sn_hz:
+      req.autosan.body.sweep_frekanslari_sn_hz !== null
+        ? req.autosan.body.sweep_frekanslari_sn_hz.toString()
+        : null,
+    sweep_taper_ms:
+      req.autosan.body.sweep_taper_ms !== null
+        ? req.autosan.body.sweep_taper_ms.toString()
+        : null,
+    yayim_tipi:
+      req.autosan.body.yayim_tipi !== null
+        ? req.autosan.body.yayim_tipi.toString()
+        : null,
+    ofsetm:
+      req.autosan.body.ofsetm !== null
+        ? req.autosan.body.ofsetm.toString()
+        : null,
+    jeofon_dizilimi:
+      req.autosan.body.jeofon_dizilimi !== null
+        ? req.autosan.body.jeofon_dizilimi.toString()
+        : null,
+    grup_araligim:
+      req.autosan.body.grup_araligim !== null
+        ? req.autosan.body.grup_araligim.toString()
+        : null,
+    atis_araligim:
+      req.autosan.body.atis_araligim !== null
+        ? req.autosan.body.atis_araligim.toString()
+        : null,
+    ornekleme_araligim:
+      req.autosan.body.ornekleme_araligim !== null
+        ? req.autosan.body.ornekleme_araligim.toString()
+        : null,
     ekipman: req.autosan.body.ekipman ? req.autosan.body.ekipman : null,
     enerji_kaynagi: req.autosan.body.enerji_kaynagi
       ? req.autosan.body.enerji_kaynagi
       : null,
-    km2: req.autosan.body.km2 ? req.autosan.body.km2 : null,
-    profil_boyukm: req.autosan.body.profil_boyukm
-      ? req.autosan.body.profil_boyukm
-      : null,
-    elektrot_araligi: req.autosan.body.elektrot_araligi
-      ? req.autosan.body.elektrot_araligi
-      : null,
+    km2: req.autosan.body.km2 !== null ? req.autosan.body.km2 : null,
+    profil_boyukm:
+      req.autosan.body.profil_boyukm !== null
+        ? req.autosan.body.profil_boyukm.toString()
+        : null,
+    elektrot_araligi:
+      req.autosan.body.elektrot_araligi !== null
+        ? req.autosan.body.elektrot_araligi.toString()
+        : null,
     dizilim_turu: req.autosan.body.dizilim_turu
       ? req.autosan.body.dizilim_turu
       : null,
-    seviye_sayisi: req.autosan.body.seviye_sayisi
-      ? req.autosan.body.seviye_sayisi
-      : null,
-    profil_araligi: req.autosan.body.profil_araligi
-      ? req.autosan.body.profil_araligi
-      : null,
-    a_1: req.autosan.body.a_1 ? req.autosan.body.a_1 : null,
-    a_2: req.autosan.body.a_2 ? req.autosan.body.a_2 : null,
-    a_3: req.autosan.body.a_3 ? req.autosan.body.a_3 : null,
-    a_4: req.autosan.body.a_4 ? req.autosan.body.a_4 : null,
-    olcu_karne_no: req.autosan.body.olcu_karne_no
-      ? req.autosan.body.olcu_karne_no
-      : null,
-    dis_loop_boyutu: req.autosan.body.dis_loop_boyutu
-      ? req.autosan.body.dis_loop_boyutu
-      : null,
+    seviye_sayisi:
+      req.autosan.body.seviye_sayisi !== null
+        ? req.autosan.body.seviye_sayisi.toString()
+        : null,
+    profil_araligi:
+      req.autosan.body.profil_araligi !== null
+        ? req.autosan.body.profil_araligi.toString()
+        : null,
+    a_1: req.autosan.body.a_1 !== null ? req.autosan.body.a_1.toString() : null,
+    a_2: req.autosan.body.a_2 !== null ? req.autosan.body.a_2.toString() : null,
+    a_3: req.autosan.body.a_3 !== null ? req.autosan.body.a_3.toString() : null,
+    a_4: req.autosan.body.a_4 !== null ? req.autosan.body.a_4.toString() : null,
+    olcu_karne_no:
+      req.autosan.body.olcu_karne_no !== null
+        ? req.autosan.body.olcu_karne_no.toString()
+        : null,
+    dis_loop_boyutu:
+      req.autosan.body.dis_loop_boyutu !== null
+        ? req.autosan.body.dis_loop_boyutu.toString()
+        : null,
     published: req.autosan.body.published ? req.body.published : false,
     lat: req.autosan.body.lat ? req.autosan.body.lat : null,
     lon: req.autosan.body.lon ? req.autosan.body.lon : null,
