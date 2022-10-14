@@ -20,6 +20,7 @@ const getPagingData = (data, page, limit) => {
 
 // Create and Save a new Tutorial
 exports.create = (req, res) => {
+  console.log(req.body);
   // Validate request
   if (!req.autosan.body.nokta_adi) {
     res.status(400).send({
@@ -282,23 +283,51 @@ exports.create = (req, res) => {
       ? req.autosan.body.editorname
       : null,
   };
-  //findorcreate tutorial if the entry is not found in the database
-  //https://sequelize.org/master/manual/model-querying-basics.html
-  //https://sequelize.org/master/manual/model-querying-basics.html#-code-findorcreate--code----search-for-a-specific-element-or-create-it-if-not-available
-  Tutorial.findOrCreate({
-    where: tutorial,
-    attributes: { exclude: ["id"] },
+  //loop through the array and find if exists in the database
+  const element = req.autosan.body;
+  //check if the element exists in the database
+  const exists = Tutorial.findAll({
+    //find all entries in req.body with using const tutorial
+    where: {
+      [Op.and]: tutorial,
+    },
   })
+
     .then((data) => {
-      res.send(data);
+      if (data.length > 0) {
+        //if the element exists in the database
+        res.send({
+          message: "Failed! Tutorial already exists!",
+        });
+      } else {
+        //if the element does not exist in the database
+        Tutorial.bulkCreate([tutorial], {
+          ignoreDuplicates: true,
+        })
+          .then((data) => {
+            res.status(200).json({
+              message: "Successfully created",
+              data: data,
+            });
+          })
+          .catch((err) => {
+            res.status(500).json({
+              message:
+                err.message ||
+                "Some error occurred while creating the Tutorial.",
+            });
+          });
+      }
     })
     .catch((err) => {
-      res.status(500).send({
+      res.status(500).json({
         message:
           err.message || "Some error occurred while creating the Tutorial.",
       });
     });
 };
+
+// Bulk create tutorials
 
 // Save Tutorial in the database if the entry does not
 // Tutorial.create(tutorial)
