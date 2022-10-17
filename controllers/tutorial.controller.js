@@ -20,7 +20,6 @@ const getPagingData = (data, page, limit) => {
 
 // Create and Save a new Tutorial
 exports.create = (req, res) => {
-  console.log(req.body);
   // Validate request
   if (!req.autosan.body.nokta_adi) {
     res.status(400).send({
