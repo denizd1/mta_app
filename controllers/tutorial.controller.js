@@ -342,24 +342,28 @@ exports.create = (req, res) => {
 
 // Retrieve all Tutorials from the database.
 exports.findAll = (req, res) => {
-  const { page, size, il, ilce, yontem, userStatus, areaJson } = req.query;
+  const { page, size, il, ilce, yontem, userStatus, requestFlag, areaJson } =
+    req.query;
   const { limit, offset } = getPagination(page, size);
   var filters = {};
   var condition = null;
+  condition = il ? { il: { [Op.iLike]: `%${il}%` } } : null;
 
-  var fields = Object.keys(
-    _.pick(Tutorial.rawAttributes, [
-      "nokta_adi",
-      "calisma_amaci",
-      "il",
-      "ilce",
-      "yontem",
-      "alt_yontem",
-    ])
-  );
+  if (requestFlag == "userSearch") {
+    var fields = Object.keys(
+      _.pick(Tutorial.rawAttributes, [
+        "nokta_adi",
+        "calisma_amaci",
+        "il",
+        "ilce",
+        "yontem",
+        "alt_yontem",
+      ])
+    );
 
-  fields.forEach((item) => (filters[item] = { [Op.iLike]: `%${il}%` }));
-  condition = il ? { [Op.or]: filters } : null;
+    fields.forEach((item) => (filters[item] = { [Op.iLike]: `%${il}%` }));
+    condition = il ? { [Op.or]: filters } : null;
+  }
 
   var locationCondition = null;
 
