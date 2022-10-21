@@ -42,7 +42,7 @@
     "pg-promise": "^10.12.1",
     "read-excel-file": "^5.5.3",
     "script-loader": "^0.7.2",
-    "sequelize": "^6.9.0",
+    "sequelize": "^6.23.2",
     "turf": "^3.0.14",
     "utm-latlng": "^1.0.7",
     "v8-compile-cache": "^2.3.0",
