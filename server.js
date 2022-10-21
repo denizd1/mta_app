@@ -17,7 +17,7 @@ const Role = db.role;
 const csrf = require("csurf");
 const csrfProtection = csrf();
 const pathe = require("path");
-
+global.__basedir = __dirname + "/..";
 app.use(compression()); //Compress all routes
 
 require("dotenv").config({ path: pathe.resolve(__dirname, "/.env") });

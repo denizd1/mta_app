@@ -3,7 +3,8 @@ module.exports = (app) => {
 
   const tutorials = require("../controllers/tutorial.controller.js");
   const expAutoSan = require("express-autosanitizer");
-  const { verifyTutorial } = require("../middleware");
+  const excelController = require("../controllers/excel.controller.js");
+  const upload = require("../middleware/upload");
 
   var router = require("express").Router();
   // app.use(function (req, res, next) {
@@ -13,13 +14,21 @@ module.exports = (app) => {
   //   );
   //   next();
   // });
-
+  router.get(
+    "/files",
+    [authJwt.verifyToken, authJwt.isAdmin || authJwt.isModerator],
+    excelController.getListFiles
+  );
   // Create a new Tutorial
   router.post(
-    "/",
-    // verifyTutorial.checkDuplicatenoktaAdi,
-    expAutoSan.route,
-    tutorials.create
+    "/upload",
+    [
+      authJwt.verifyToken,
+      authJwt.isAdmin || authJwt.isModerator,
+      upload.single("file"),
+    ],
+
+    excelController.upload
   );
 
   // Retrieve all Tutorials
