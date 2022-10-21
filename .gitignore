@@ -1,6 +1,7 @@
 node_modules/
 .dccache
-views/
-/dist
-views/index.html
+views/*
+dist/
 .env
+uploads/*
+views/index.html
