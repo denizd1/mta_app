@@ -103,7 +103,19 @@ const upload = async (req, res) => {
       rows.forEach((row) => {
         tutorials.push(importData(row, req.body.user));
       });
-      importeach(tutorials);
+      importeach(tutorials)
+        .then((data) => {
+          res.status(200).json({
+            message: "Successfully created",
+            data: data,
+          });
+        })
+        .catch((err) => {
+          res.status(500).json({
+            message:
+              err.message || "Some error occurred while creating the Tutorial.",
+          });
+        });
     });
   } catch (error) {
     console.log("hata", error);
