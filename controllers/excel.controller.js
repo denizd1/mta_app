@@ -103,21 +103,7 @@ const upload = async (req, res) => {
       rows.forEach((row) => {
         tutorials.push(importData(row, req.body.user));
       });
-      Tutorial.bulkCreate(tutorials)
-        .then((data) => {
-          res.status(200).json({
-            message: "Successfully created",
-            data: data,
-            ignoreDuplicates: true,
-          });
-        })
-        .catch((err) => {
-          res.status(500).json({
-            message:
-              err.message || "Some error occurred while creating the Tutorial.",
-          });
-        });
-      // importeach(tutorials);
+      importeach(tutorials);
     });
   } catch (error) {
     console.log("hata", error);
@@ -126,35 +112,35 @@ const upload = async (req, res) => {
     });
   }
 };
-// const asyncForEach = async (array, callback) => {
-//   for (let index = 0; index < array.length; index++) {
-//     await callback(array[index], index, array);
-//   }
-// };
-// const importeach = async (entry) => {
-//   try {
-//     await asyncForEach(entry, async (entry, index) => {
-//       console.log(entry);
-//       const collection = await Tutorial.findOrCreate({
-//         where: {
-//           nokta_adi: entry["nokta_adi"],
-//           yontem: entry["yontem"],
-//           alt_yontem: entry["alt_yontem"],
-//           calisma_tarihi: entry["calisma_tarihi"],
-//           proje_kodu: entry["proje_kodu"],
-//           jeofizik_arsiv_no: entry["jeofizik_arsiv_no"],
-//           derleme_no: entry["derleme_no"],
-//           cd_no: entry["cd_no"],
-//           il: entry["il"],
-//           ilce: entry["ilce"],
-//         },
-//         defaults: entry,
-//       }).then(() => {});
-//     });
-//   } catch (err) {
-//     console.log(err);
-//   }
-// };
+const asyncForEach = async (array, callback) => {
+  for (let index = 0; index < array.length; index++) {
+    await callback(array[index], index, array);
+  }
+};
+const importeach = async (entry) => {
+  try {
+    await asyncForEach(entry, async (entry, index) => {
+      console.log(entry);
+      const collection = await Tutorial.findOrCreate({
+        where: {
+          nokta_adi: entry["nokta_adi"],
+          yontem: entry["yontem"],
+          alt_yontem: entry["alt_yontem"],
+          calisma_tarihi: entry["calisma_tarihi"],
+          proje_kodu: entry["proje_kodu"],
+          jeofizik_arsiv_no: entry["jeofizik_arsiv_no"],
+          derleme_no: entry["derleme_no"],
+          cd_no: entry["cd_no"],
+          il: entry["il"],
+          ilce: entry["ilce"],
+        },
+        defaults: entry,
+      }).then(() => {});
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};
 
 const importData = (element, user) => {
   let data = {};
