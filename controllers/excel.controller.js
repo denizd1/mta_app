@@ -212,13 +212,13 @@ const importData = (element, user) => {
     data["profil_bitis_x"] != null &&
     data["profil_bitis_y"] != null
   ) {
-    var polyLineStart = this.converter(
+    var polyLineStart = converter(
       data["profil_baslangic_x"],
       data["profil_baslangic_y"],
       data["zone"],
       data["datum"]
     );
-    var polyLineEnd = this.converter(
+    var polyLineEnd = converter(
       data["profil_bitis_x"],
       data["profil_bitis_y"],
       data["zone"],

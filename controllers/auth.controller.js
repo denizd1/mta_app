@@ -1,6 +1,8 @@
 const db = require("../models");
 const config = require("../config/auth.config");
 const { user: User, role: Role, refreshToken: RefreshToken } = db;
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 
 const Op = db.Sequelize.Op;
 
@@ -12,17 +14,17 @@ exports.signup = (req, res) => {
   User.create({
     username: req.body.username,
     email: req.body.email,
-    password: bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10))
+    password: bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10)),
   })
-    .then(user => {
+    .then((user) => {
       if (req.body.roles) {
         Role.findAll({
           where: {
             name: {
-              [Op.or]: req.body.roles
-            }
-          }
-        }).then(roles => {
+              [Op.or]: req.body.roles,
+            },
+          },
+        }).then((roles) => {
           user.setRoles(roles).then(() => {
             res.send({ message: "Kaydınız tamamlandı" });
           });
@@ -34,7 +36,7 @@ exports.signup = (req, res) => {
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({ message: err.message });
     });
 };
@@ -42,8 +44,8 @@ exports.signup = (req, res) => {
 exports.signin = (req, res) => {
   User.findOne({
     where: {
-      username: req.body.username
-    }
+      username: req.body.username,
+    },
   })
     .then(async (user) => {
       if (!user) {
@@ -58,18 +60,18 @@ exports.signin = (req, res) => {
       if (!passwordIsValid) {
         return res.status(401).send({
           accessToken: null,
-          message: "Şifrenizi hatalı girdiniz"
+          message: "Şifrenizi hatalı girdiniz",
         });
       }
 
-      const token = jwt.sign({ id: user.id }, config.secret, {
-        expiresIn: config.jwtExpiration
+      const token = jwt.sign({ id: user.id }, process.env.JWTSECRET, {
+        expiresIn: config.jwtExpiration,
       });
 
       let refreshToken = await RefreshToken.createToken(user);
 
       let authorities = [];
-      user.getRoles().then(roles => {
+      user.getRoles().then((roles) => {
         for (let i = 0; i < roles.length; i++) {
           authorities.push("ROLE_" + roles[i].name.toUpperCase());
         }
@@ -84,7 +86,7 @@ exports.signin = (req, res) => {
         });
       });
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({ message: err.message });
     });
 };
@@ -97,8 +99,9 @@ exports.refreshToken = async (req, res) => {
   }
 
   try {
-    let refreshToken = await RefreshToken.findOne({ where: { token: requestToken } });
-
+    let refreshToken = await RefreshToken.findOne({
+      where: { token: requestToken },
+    });
 
     if (!refreshToken) {
       res.status(403).json({ message: "Refresh token is not in database!" });
@@ -107,7 +110,7 @@ exports.refreshToken = async (req, res) => {
 
     if (RefreshToken.verifyExpiration(refreshToken)) {
       RefreshToken.destroy({ where: { id: refreshToken.id } });
-      
+
       res.status(403).json({
         message: "Refresh token was expired. Please make a new signin request",
       });
@@ -115,7 +118,7 @@ exports.refreshToken = async (req, res) => {
     }
 
     const user = await refreshToken.getUser();
-    let newAccessToken = jwt.sign({ id: user.id }, config.secret, {
+    let newAccessToken = jwt.sign({ id: user.id }, process.env.JWTSECRET, {
       expiresIn: config.jwtExpiration,
     });
 
