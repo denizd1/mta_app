@@ -16,17 +16,13 @@ module.exports = (app) => {
   // });
   router.get(
     "/files",
-    [authJwt.verifyToken, authJwt.isAdmin || authJwt.isModerator],
+    [authJwt.verifyToken, authJwt.isModeratorOrAdmin],
     excelController.getListFiles
   );
   // Create a new Tutorial
   router.post(
     "/upload",
-    [
-      authJwt.verifyToken,
-      authJwt.isAdmin || authJwt.isModerator,
-      upload.single("file"),
-    ],
+    [authJwt.verifyToken, authJwt.isModeratorOrAdmin, upload.single("file")],
 
     excelController.upload
   );
@@ -58,7 +54,7 @@ module.exports = (app) => {
   // Update a Tutorial with id
   router.put(
     "/:id",
-    [authJwt.verifyToken, authJwt.isAdmin || authJwt.isModerator],
+    [authJwt.verifyToken, authJwt.isModeratorOrAdmin],
     expAutoSan.route,
     tutorials.update
   );
