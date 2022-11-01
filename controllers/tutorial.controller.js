@@ -311,3 +311,30 @@ exports.findAllUnpublished = (req, res) => {
       });
     });
 };
+
+//get number of tutorials for each alt_yontem sequelize query raw query SELECT
+//    alt_yontem,
+//    COUNT (*) AS "numberof"
+//  FROM
+//     tutorials
+
+//  GROUP BY
+//    alt_yontem;
+exports.AltYontemCount = (req, res) => {
+  Tutorial.count({
+    group: "alt_yontem",
+    attributes: [
+      "alt_yontem",
+      [Sequelize.fn("COUNT", Sequelize.col("alt_yontem")), "numberof"],
+    ],
+  })
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving tutorials.",
+      });
+    });
+};

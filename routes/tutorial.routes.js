@@ -27,6 +27,13 @@ module.exports = (app) => {
     excelController.upload
   );
 
+  //get number of tutorials for each alt_yontem
+  router.get(
+    "/AltYontemCount",
+    [authJwt.verifyToken, authJwt.isModeratorOrAdmin],
+    tutorials.AltYontemCount
+  );
+
   // Retrieve all Tutorials
   router.get("/", [authJwt.verifyToken], tutorials.findAll);
   router.get("/getall", [authJwt.verifyToken], tutorials.findAllgetAll);
