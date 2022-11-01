@@ -66,7 +66,7 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
       },
       zone: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
       },
       datum: {
         type: Sequelize.STRING,
