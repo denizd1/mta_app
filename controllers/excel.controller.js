@@ -137,35 +137,6 @@ const upload = async (req, res) => {
     });
   }
 };
-// const asyncForEach = async (array, callback) => {
-//   for (let index = 0; index < array.length; index++) {
-//     await callback(array[index], index, array);
-//   }
-// };
-// const importeach = async (entry) => {
-//   try {
-//     await asyncForEach(entry, async (entry, index) => {
-//       console.log(entry);
-//       const collection = await Tutorial.findOrCreate({
-//         where: {
-//           nokta_adi: entry["nokta_adi"],
-//           yontem: entry["yontem"],
-//           alt_yontem: entry["alt_yontem"],
-//           calisma_tarihi: entry["calisma_tarihi"],
-//           proje_kodu: entry["proje_kodu"],
-//           jeofizik_arsiv_no: entry["jeofizik_arsiv_no"],
-//           derleme_no: entry["derleme_no"],
-//           cd_no: entry["cd_no"],
-//           il: entry["il"],
-//           ilce: entry["ilce"],
-//         },
-//         defaults: entry,
-//       }).then(() => {});
-//     });
-//   } catch (err) {
-//     console.log(err);
-//   }
-// };
 
 const importData = (element, user) => {
   let data = {};
@@ -185,21 +156,29 @@ const importData = (element, user) => {
     }
   });
   // data["editorname"] = this.$store.state.auth.user.username;
+  if (typeof data["zone"] === "string" && data["zone"].includes(",")) {
+    data["zone"] = data["zone"].split(",").map(Number);
+  }
+
   var latlon = null;
   var dummyCity = null;
   var thisCity = null;
-  if (data["il"].includes(",")) {
-    dummyCity = data["il"].split(",")[0];
-    thisCity = citiesLatLongjson.filter((city) => city.il == dummyCity.trim());
-  } else {
-    dummyCity = data["il"];
-    thisCity = citiesLatLongjson.filter(
-      (city) => city.il == dummyCity.trim()
-    )[0];
+  if (data["il"] != null || data["il"] != undefined) {
+    if (data["il"].includes(",")) {
+      dummyCity = data["il"].split(",")[0];
+      thisCity = citiesLatLongjson.filter(
+        (city) => city.il == dummyCity.trim()
+      );
+    } else {
+      dummyCity = data["il"];
+      thisCity = citiesLatLongjson.filter(
+        (city) => city.il == dummyCity.trim()
+      )[0];
+    }
+    data["lat"] = parseFloat(thisCity.longitude);
+    data["lon"] = parseFloat(thisCity.latitude);
   }
 
-  data["lat"] = parseFloat(thisCity.longitude);
-  data["lon"] = parseFloat(thisCity.latitude);
   if (data["x"] != null && data["y"] != null) {
     latlon = converter(data["x"], data["y"], data["zone"], data["datum"]);
     data["lat"] = latlon.lng;
@@ -277,19 +256,24 @@ const importData = (element, user) => {
     for (let i = 0; i < corners.length; i++) {
       var corner = corners[i];
       var cornerCoordinates = corner.split(",");
-      var x = parseInt(cornerCoordinates[0]);
-      var y = parseInt(cornerCoordinates[1]);
+      var x = parseFloat(cornerCoordinates[0]);
+      var y = parseFloat(cornerCoordinates[1]);
 
-      var cornerPoint = converter(x, y, data["zone"], data["datum"]);
+      var cornerPoint = converter(
+        x,
+        y,
+        data["zone"].length > 1 ? data["zone"][i] : data["zone"],
+        data["datum"]
+      );
       coordinates.push([cornerPoint.lng, cornerPoint.lat]);
     }
     var close = converter(
-      parseInt(corners[0].split(",")[0]),
-      parseInt(corners[0].split(",")[1]),
-      data["zone"],
+      parseFloat(corners[0].split(",")[0]),
+      parseFloat(corners[0].split(",")[1]),
+      data["zone"].length > 1 ? data["zone"][0] : data["zone"],
       data["datum"]
     );
-    coordinates.push([close.lng, close.lat]);
+    coordinates.push([parseFloat(close.lng), parseFloat(close.lat)]);
     var geoJson = {
       type: "FeatureCollection",
       features: [
@@ -333,9 +317,9 @@ const importData = (element, user) => {
   //   });
   for (const [key, value] of Object.entries(data)) {
     data[key] = replaceVal(value);
-    if (key != "zone") {
-      data[key] = value !== null ? value.toString() : null;
-    }
+
+    data[key] = value !== null ? value.toString() : null;
+
     if (key === "lat" || key === "lon") {
       data[key] = value !== null ? parseFloat(value) : null;
     }
@@ -431,6 +415,7 @@ const replaceVal = (value) => {
 };
 
 const converter = (x, y, zone, datum) => {
+  console.log(zone);
   var utm = null;
   if (datum === "WGS_84") {
     utm = new utmObj("WGS 84");

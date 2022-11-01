@@ -25,7 +25,7 @@ var storage = multer.diskStorage({
     cb(null, __basedir + "/app/uploads/");
   },
   filename: (req, file, cb) => {
-    cb(null, `${file.originalname}`);
+    cb(null, `${Date.now()}-${file.originalname}`);
   },
 });
 
