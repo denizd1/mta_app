@@ -246,29 +246,8 @@ module.exports = (sequelize, Sequelize) => {
     {
       charset: "utf8",
       collate: "utf8_unicode_ci",
-    },
-    //add unique key
-    {
-      indexes: [
-        {
-          unique: true,
-          name: "tutorial_index",
-          //all fields in tutorial must be unique
-          fields: [
-            "nokta_adi",
-            "yontem",
-            "alt_yontem",
-            "calisma_tarihi",
-            "proje_kodu",
-            "jeofizik_arsiv_no",
-            "derleme_no",
-            "cd_no",
-            "il",
-            "ilce",
-          ],
-        },
-      ],
     }
+    //add unique key
   );
 
   return Tutorial;

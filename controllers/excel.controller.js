@@ -116,19 +116,6 @@ const upload = async (req, res) => {
               err.message || "Some error occurred while creating the Tutorial.",
           });
         });
-      // importeach(tutorials)
-      //   .then((data) => {
-      //     res.status(200).json({
-      //       message: "Successfully created",
-      //       data: data,
-      //     });
-      //   })
-      //   .catch((err) => {
-      //     res.status(500).json({
-      //       message:
-      //         err.message || "Some error occurred while creating the Tutorial.",
-      //     });
-      //   });
     });
   } catch (error) {
     console.log("hata", error);
@@ -326,6 +313,7 @@ const importData = (element, user) => {
   }
   data["published"] = false;
   data["editorname"] = user.toString();
+  console.log(data);
   return data;
 };
 
@@ -345,6 +333,10 @@ const replaceVal = (value) => {
       return "Manyetik";
     case "HAVADAN MANYETIK":
       return "Havadan Manyetik";
+    case "HAVADAN GRAVITE":
+      return "Havadan Gravite";
+    case "UYDU GORUNTUSU":
+      return "uydu Görüntüsü";
     case "RADYOMETRI":
       return "Radyometri";
     case "SUSEPTIBILITE":
@@ -405,6 +397,8 @@ const replaceVal = (value) => {
       return "Radyoaktif Hammadde";
     case "KOMUR":
       return "Kömür";
+    case "JEOTERMAL":
+      return "Jeotermal";
     case "VAR":
       return "Var";
     case "YOK":
@@ -415,7 +409,6 @@ const replaceVal = (value) => {
 };
 
 const converter = (x, y, zone, datum) => {
-  console.log(zone);
   var utm = null;
   if (datum === "WGS_84") {
     utm = new utmObj("WGS 84");
