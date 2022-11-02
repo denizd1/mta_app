@@ -43,7 +43,7 @@
     "turf": "^3.0.14",
     "utm-latlng": "^1.0.7",
     "v8-compile-cache": "^2.3.0",
-    "xlsx": "^0.17.4"
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "sequelize-cli": "^6.5.1"
