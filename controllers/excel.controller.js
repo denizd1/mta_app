@@ -155,7 +155,7 @@ const importData = (element, user) => {
       dummyCity = data["il"].split(",")[0];
       thisCity = citiesLatLongjson.filter(
         (city) => city.il == dummyCity.trim()
-      );
+      )[0];
     } else {
       dummyCity = data["il"];
       thisCity = citiesLatLongjson.filter(
@@ -313,7 +313,6 @@ const importData = (element, user) => {
   }
   data["published"] = false;
   data["editorname"] = user.toString();
-  console.log(data);
   return data;
 };
 
