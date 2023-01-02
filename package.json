@@ -39,7 +39,7 @@
     "pg-hstore": "^2.3.4",
     "read-excel-file": "^5.5.3",
     "script-loader": "^0.7.2",
-    "sequelize": "^6.25.3",
+    "sequelize": "^6.27.0",
     "turf": "^3.0.14",
     "utm-latlng": "^1.0.7",
     "v8-compile-cache": "^2.3.0",
