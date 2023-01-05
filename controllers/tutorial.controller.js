@@ -36,6 +36,9 @@ exports.findAll = (req, res) => {
         "ilce",
         "yontem",
         "alt_yontem",
+        "yuzbin",
+        "yirmibesbin",
+        "besyuzbin",
       ])
     );
 
@@ -125,6 +128,9 @@ exports.findAllgetAll = (req, res) => {
         "ilce",
         "yontem",
         "alt_yontem",
+        "yuzbin",
+        "yirmibesbin",
+        "besyuzbin",
       ])
     );
 
@@ -152,7 +158,37 @@ exports.findAllgetAll = (req, res) => {
     ),
   })
     .then((data) => {
-      res.send(data);
+      var forPlot = [];
+      const pick = (obj, arr) =>
+        arr.reduce(
+          (acc, record) => (record in obj && (acc[record] = obj[record]), acc),
+          {}
+        );
+      data.forEach((item) =>
+        forPlot.push(
+          pick(item, [
+            "id",
+            "yontem",
+            "alt_yontem",
+            "nokta_adi",
+            "x",
+            "y",
+            "profil_baslangic_x",
+            "profil_baslangic_y",
+            "profil_bitis_x",
+            "profil_bitis_y",
+            "zone",
+            "datum",
+            "a_1",
+            "a_2",
+            "a_3",
+            "a_4",
+            "lat",
+            "lon",
+          ])
+        )
+      );
+      res.send(forPlot);
     })
     .catch((err) => {
       res.status(500).send({
@@ -195,7 +231,37 @@ exports.findAllGeo = (req, res) => {
     ],
   })
     .then((data) => {
-      res.send(data);
+      var forPlot = [];
+      const pick = (obj, arr) =>
+        arr.reduce(
+          (acc, record) => (record in obj && (acc[record] = obj[record]), acc),
+          {}
+        );
+      data.forEach((item) =>
+        forPlot.push(
+          pick(item, [
+            "id",
+            "yontem",
+            "alt_yontem",
+            "nokta_adi",
+            "x",
+            "y",
+            "profil_baslangic_x",
+            "profil_baslangic_y",
+            "profil_bitis_x",
+            "profil_bitis_y",
+            "zone",
+            "datum",
+            "a_1",
+            "a_2",
+            "a_3",
+            "a_4",
+            "lat",
+            "lon",
+          ])
+        )
+      );
+      res.send(forPlot);
     })
     .catch((err) => {
       res.status(500).send({
