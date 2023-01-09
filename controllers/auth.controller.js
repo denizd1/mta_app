@@ -1,8 +1,6 @@
 const db = require("../models");
 const config = require("../config/auth.config");
 const { user: User, role: Role, refreshToken: RefreshToken } = db;
-const path = require("path");
-require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 
 const Op = db.Sequelize.Op;
 
@@ -64,7 +62,7 @@ exports.signin = (req, res) => {
         });
       }
 
-      const token = jwt.sign({ id: user.id }, process.env.JWTSECRET, {
+      const token = jwt.sign({ id: user.id }, global.env.JWTSECRET, {
         expiresIn: config.jwtExpiration,
       });
 
@@ -118,7 +116,7 @@ exports.refreshToken = async (req, res) => {
     }
 
     const user = await refreshToken.getUser();
-    let newAccessToken = jwt.sign({ id: user.id }, process.env.JWTSECRET, {
+    let newAccessToken = jwt.sign({ id: user.id }, global.env.JWTSECRET, {
       expiresIn: config.jwtExpiration,
     });
 

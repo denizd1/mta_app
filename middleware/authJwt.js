@@ -2,8 +2,6 @@ const jwt = require("jsonwebtoken");
 const config = require("../config/auth.config.js");
 const db = require("../models");
 const User = db.user;
-const path = require("path");
-require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 
 const { TokenExpiredError } = jwt;
 
@@ -24,7 +22,7 @@ const verifyToken = (req, res, next) => {
     return res.status(403).send({ message: "No token provided!" });
   }
 
-  jwt.verify(token, process.env.JWTSECRET, (err, decoded) => {
+  jwt.verify(token, global.env.JWTSECRET, (err, decoded) => {
     if (err) {
       return catchError(err, res);
     }

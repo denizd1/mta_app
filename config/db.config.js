@@ -1,11 +1,9 @@
-const path = require("path");
-require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 module.exports = {
-  HOST: process.env.HOST,
-  USER: process.env.USER,
-  PASSWORD: process.env.PASSWORD,
-  DB: process.env.DB,
-  dialect: process.env.DIALECT,
+  HOST: global.env.HOST,
+  USER: global.env.USER,
+  PASSWORD: global.env.PASSWORD,
+  DB: global.env.DB,
+  dialect: global.env.DIALECT,
   pool: {
     max: 5,
     min: 0,

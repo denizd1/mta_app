@@ -4,6 +4,9 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const compression = require("compression");
+let secureEnv = require("secure-env");
+global.__basedir = __dirname + "/..";
+global.env = secureEnv({ secret: "mySecretPassword" });
 
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
@@ -16,11 +19,8 @@ const Role = db.role;
 
 const csrf = require("csurf");
 const csrfProtection = csrf();
-const pathe = require("path");
-global.__basedir = __dirname + "/..";
-app.use(compression()); //Compress all routes
 
-require("dotenv").config({ path: pathe.resolve(__dirname, "/.env") });
+app.use(compression()); //Compress all routes
 
 // var whitelist = ["http://0.0.0.0:8081"];
 // var corsOptions = {
@@ -46,7 +46,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   session({
-    secret: process.env.SESSIONSECRET,
+    secret: global.env.SESSIONSECRET,
     resave: true,
     saveUninitialized: true,
   })
@@ -92,7 +92,7 @@ app.get("/api/getGeoJson:val", function (req, res) {
 });
 
 // set port, listen for requests
-const PORT = process.env.PORT || 8080;
+const PORT = global.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });

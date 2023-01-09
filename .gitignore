@@ -5,3 +5,4 @@ dist/
 .env
 uploads/*
 views/index.html
+.env.enc

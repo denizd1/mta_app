@@ -1,7 +1,5 @@
-const path = require("path");
-require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 module.exports = {
-  secret: process.env.JWTSECRET,
+  secret: global.env.JWTSECRET,
   jwtExpiration: 86400, // 1 hour
   jwtRefreshExpiration: 86400, // 24 hours
 
