@@ -79,6 +79,9 @@ app.get("/api/getGeoJson:val", function (req, res) {
   if (val == 0) {
     fs.createReadStream(__dirname + "/tr-cities-utf8.geojson").pipe(res);
   }
+  if (val == 1) {
+    fs.createReadStream(__dirname + "/tr_ilce.geojson").pipe(res);
+  }
   if (val == 25) {
     fs.createReadStream(__dirname + "/pafta25000.geojson").pipe(res);
   }
