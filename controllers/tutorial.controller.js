@@ -20,12 +20,18 @@ const getPagingData = (data, page, limit) => {
 
 // Retrieve all Tutorials from the database.
 exports.findAll = (req, res) => {
-  const { page, size, il, ilce, yontem, userStatus, requestFlag, areaJson } =
+  let { page, size, il, ilce, yontem, userStatus, requestFlag, areaJson } =
     req.query;
   const { limit, offset } = getPagination(page, size);
   var filters = {};
   var condition = null;
-  condition = il ? { il: { [Op.iLike]: `%${il}%` } } : null;
+  if (Array.isArray(il)) {
+    //create a new array with the arrays in il array
+
+    areaJson = il[0];
+  } else {
+    condition = il ? { il: { [Op.iLike]: `%${il}%` } } : null;
+  }
 
   if (requestFlag == "userSearch") {
     var fields = Object.keys(
@@ -45,17 +51,20 @@ exports.findAll = (req, res) => {
     fields.forEach((item) => (filters[item] = { [Op.iLike]: `%${il}%` }));
     condition = il ? { [Op.or]: filters } : null;
   }
-
   var locationCondition = null;
+  var coords = null;
 
   if (areaJson != null) {
+    requestFlag == "userSearch"
+      ? (coords = "[" + areaJson + "]")
+      : (coords = areaJson);
     locationCondition = Tutorial.sequelize.where(
       Tutorial.sequelize.fn(
         "ST_Within",
         Tutorial.sequelize.col("location"),
         Tutorial.sequelize.fn(
           "ST_GeomFromGeoJSON",
-          '{"type":"Polygon","coordinates":[[' + areaJson + "]]}"
+          '{"type":"Polygon","coordinates":[' + coords + "]}"
         )
       ),
       true
@@ -117,7 +126,23 @@ exports.findAll = (req, res) => {
 exports.findAllgetAll = (req, res) => {
   const { il, ilce, yontem, userStatus, requestFlag } = req.query;
   var condition = null;
-  condition = il ? { il: { [Op.iLike]: `%${il}%` } } : null;
+  var locationCondition = null;
+  if (Array.isArray(il)) {
+    locationCondition = Tutorial.sequelize.where(
+      Tutorial.sequelize.fn(
+        "ST_Within",
+        Tutorial.sequelize.col("location"),
+        Tutorial.sequelize.fn(
+          "ST_GeomFromGeoJSON",
+          '{"type":"Polygon","coordinates":[' + il + "]}"
+        )
+      ),
+      true
+    );
+  } else {
+    condition = il ? { il: { [Op.iLike]: `%${il}%` } } : null;
+  }
+
   var filters = {};
   if (requestFlag == "userSearch") {
     var fields = Object.keys(
@@ -139,23 +164,40 @@ exports.findAllgetAll = (req, res) => {
   }
 
   Tutorial.findAll({
-    where: Object.assign(
-      {},
-      condition,
-      ilce ? { ilce: { [Op.iLike]: `%${ilce}%` } } : null,
-      yontem
-        ? {
-            [Op.or]: [
-              { yontem: { [Op.or]: yontem } },
-              { alt_yontem: { [Op.or]: yontem } },
-            ],
-          }
-        : null,
-      //published will be true if the userStatus is 'user'. if not, it can be false or true.
-      userStatus == "user"
-        ? { published: true }
-        : { published: { [Op.or]: [true, false] } }
-    ),
+    where:
+      locationCondition != null
+        ? [
+            locationCondition,
+            yontem
+              ? {
+                  [Op.or]: [
+                    { yontem: { [Op.or]: yontem } },
+                    { alt_yontem: { [Op.or]: yontem } },
+                  ],
+                }
+              : null,
+            //published will be true if the userStatus is 'user'. if not, it can be false or true.
+            userStatus == "user"
+              ? { published: true }
+              : { published: { [Op.or]: [true, false] } },
+          ]
+        : Object.assign(
+            {},
+            condition,
+            ilce ? { ilce: { [Op.iLike]: `%${ilce}%` } } : null,
+            yontem
+              ? {
+                  [Op.or]: [
+                    { yontem: { [Op.or]: yontem } },
+                    { alt_yontem: { [Op.or]: yontem } },
+                  ],
+                }
+              : null,
+            //published will be true if the userStatus is 'user'. if not, it can be false or true.
+            userStatus == "user"
+              ? { published: true }
+              : { published: { [Op.or]: [true, false] } }
+          ),
   })
     .then((data) => {
       var forPlot = [];
@@ -201,6 +243,7 @@ exports.findAllgetAll = (req, res) => {
 //Find all tutorials inside the geojson polygon
 exports.findAllGeo = (req, res) => {
   const { geojson, yontem, userStatus } = req.query;
+  console.log("2", geojson);
 
   var locationCondition = Tutorial.sequelize.where(
     Tutorial.sequelize.fn(
