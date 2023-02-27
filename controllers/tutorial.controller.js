@@ -331,7 +331,6 @@ exports.findOne = (req, res) => {
 // Update a Tutorial by the id in the request
 exports.update = (req, res) => {
   const id = req.autosan.params.id;
-  console.log(req);
   var fields = Object.keys(req.body);
   let forDeletion = ["id"];
   fields = fields.filter((item) => !forDeletion.includes(item));

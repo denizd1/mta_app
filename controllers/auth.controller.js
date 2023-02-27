@@ -29,7 +29,7 @@ exports.signup = (req, res) => {
         });
       } else {
         // user role = 1
-        user.setRoles([1]).then(() => {
+        user.setRoles([4]).then(() => {
           res.send({ message: "Kaydınız tamamlandı" });
         });
       }
@@ -73,15 +73,20 @@ exports.signin = (req, res) => {
         for (let i = 0; i < roles.length; i++) {
           authorities.push("ROLE_" + roles[i].name.toUpperCase());
         }
-
-        res.status(200).send({
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          roles: authorities,
-          accessToken: token,
-          refreshToken: refreshToken,
-        });
+        if (!authorities.includes("ROLE_GUEST")) {
+          res.status(200).send({
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            roles: authorities,
+            accessToken: token,
+            refreshToken: refreshToken,
+          });
+        } else {
+          res.status(403).send({
+            message: "Kullanıcı onay bekliyor",
+          });
+        }
       });
     })
     .catch((err) => {

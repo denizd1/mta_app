@@ -115,4 +115,8 @@ function initial() {
     id: 3,
     name: "admin",
   });
+  Role.create({
+    id: 4,
+    name: "guest",
+  });
 }
