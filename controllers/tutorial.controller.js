@@ -262,8 +262,7 @@ exports.findAllgetAll = (req, res) => {
 
 //Find all tutorials inside the geojson polygon
 exports.findAllGeo = (req, res) => {
-  const { geojson, yontem, userStatus } = req.query;
-  console.log("2", geojson);
+  const { geojson, yontem, userStatus, requestFlag } = req.query;
 
   var locationCondition = Tutorial.sequelize.where(
     Tutorial.sequelize.fn(
@@ -294,37 +293,57 @@ exports.findAllGeo = (req, res) => {
     ],
   })
     .then((data) => {
-      var forPlot = [];
-      const pick = (obj, arr) =>
-        arr.reduce(
-          (acc, record) => (record in obj && (acc[record] = obj[record]), acc),
-          {}
+      var resdata = null;
+      if (requestFlag !== "excel") {
+        var forPlot = [];
+        const pick = (obj, arr) =>
+          arr.reduce(
+            (acc, record) => (
+              record in obj && (acc[record] = obj[record]), acc
+            ),
+            {}
+          );
+        data.forEach((item) =>
+          forPlot.push(
+            pick(item, [
+              "id",
+              "yontem",
+              "alt_yontem",
+              "nokta_adi",
+              "x",
+              "y",
+              "profil_baslangic_x",
+              "profil_baslangic_y",
+              "profil_bitis_x",
+              "profil_bitis_y",
+              "zone",
+              "datum",
+              "a_1",
+              "a_2",
+              "a_3",
+              "a_4",
+              "lat",
+              "lon",
+            ])
+          )
         );
-      data.forEach((item) =>
-        forPlot.push(
-          pick(item, [
-            "id",
-            "yontem",
-            "alt_yontem",
-            "nokta_adi",
-            "x",
-            "y",
-            "profil_baslangic_x",
-            "profil_baslangic_y",
-            "profil_bitis_x",
-            "profil_bitis_y",
-            "zone",
-            "datum",
-            "a_1",
-            "a_2",
-            "a_3",
-            "a_4",
-            "lat",
-            "lon",
-          ])
-        )
-      );
-      res.send(forPlot);
+        resdata = forPlot;
+      } else {
+        var arr = [];
+        data.forEach((item) => {
+          delete item.dataValues.id;
+          delete item.dataValues.createdAt;
+          delete item.dataValues.updatedAt;
+          delete item.dataValues.editorname;
+          delete item.dataValues.published;
+          delete item.dataValues.lat;
+          delete item.dataValues.lon;
+          arr.push(item.dataValues);
+        });
+        resdata = arr;
+      }
+
+      res.send(resdata);
     })
     .catch((err) => {
       res.status(500).send({
