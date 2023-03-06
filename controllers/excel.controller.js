@@ -94,31 +94,40 @@ const upload = async (req, res) => {
     }
     let path = __basedir + "/app/uploads/" + req.file.filename;
 
-    readXlsxFile(path, { sheet: 2 }).then((rows) => {
-      // skip header
-      rows.shift();
+    readXlsxFile(path, { sheet: 2 })
+      .then((rows) => {
+        // skip header
+        rows.shift();
 
-      let tutorials = [];
+        let tutorials = [];
 
-      rows.forEach((row) => {
-        tutorials.push(importData(row, req.body.user));
-      });
-      Tutorial.bulkCreate(tutorials)
-        .then((data) => {
-          res.status(200).json({
-            message: "Successfully created",
-            data: data,
-          });
-        })
-        .catch((err) => {
-          res.status(500).json({
-            message:
-              err.message || "Some error occurred while creating the Tutorial.",
-          });
+        rows.forEach((row) => {
+          tutorials.push(importData(row, req.body.user));
         });
-    });
-  } catch (error) {
-    console.log("hata", error);
+
+        Tutorial.bulkCreate(tutorials)
+          .then((data) => {
+            res.status(200).json({
+              message: "Successfully created",
+              data: data,
+            });
+          })
+          .catch((err) => {
+            res.status(500).json({
+              message:
+                err.message ||
+                "Some error occurred while creating the Tutorial.",
+            });
+          });
+      })
+      .catch((err) => {
+        res.status(500).json({
+          message:
+            err.message || "Some error occurred while creating the Tutorial.",
+        });
+      });
+  } catch (e) {
+    console.log("hata", e);
     res.status(500).send({
       message: "Could not upload the file: " + req.file.originalname,
     });
@@ -150,26 +159,33 @@ const importData = (element, user) => {
   var latlon = null;
   var dummyCity = null;
   var thisCity = null;
-  if (data["il"] != null || data["il"] != undefined) {
-    if (data["il"].includes(",")) {
-      dummyCity = data["il"].split(",")[0];
-      thisCity = citiesLatLongjson.filter(
-        (city) => city.il == dummyCity.trim()
-      )[0];
-    } else {
-      dummyCity = data["il"];
-      thisCity = citiesLatLongjson.filter(
-        (city) => city.il == dummyCity.trim()
-      )[0];
+  if (data["il"] in citiesLatLongjson[0]) {
+    if (data["il"] != null || data["il"] != undefined) {
+      if (data["il"].includes(",")) {
+        dummyCity = data["il"].split(",")[0];
+        thisCity = citiesLatLongjson.filter(
+          (city) => city.il == dummyCity.trim()
+        )[0];
+      } else {
+        dummyCity = data["il"];
+        thisCity = citiesLatLongjson.filter(
+          (city) => city.il == dummyCity.trim()
+        )[0];
+      }
+      data["lat"] = parseFloat(thisCity.longitude);
+      data["lon"] = parseFloat(thisCity.latitude);
     }
-    data["lat"] = parseFloat(thisCity.longitude);
-    data["lon"] = parseFloat(thisCity.latitude);
+  } else {
+    //throw error to async upload function
+    throw new Error("İl alanını kontrol ediniz.");
   }
 
   if (data["x"] != null && data["y"] != null) {
     latlon = converter(data["x"], data["y"], data["zone"], data["datum"]);
     data["lat"] = latlon.lng;
     data["lon"] = latlon.lat;
+  } else {
+    throw new Error("x, y, zone ve datum bilgilerini kontrol ediniz.");
   }
 
   if (
@@ -228,6 +244,8 @@ const importData = (element, user) => {
     var lng3 = lng1 + Math.atan2(bY, Math.cos(lat1) + bX);
     data["lat"] = lng3.toDeg();
     data["lon"] = lat3.toDeg();
+  } else {
+    throw new Error("Profil başlangıç ve bitiş noktalarını kontrol ediniz.");
   }
 
   if (
@@ -281,6 +299,8 @@ const importData = (element, user) => {
     var centerOfMass = centerofmass.default(geoJson);
     data["lat"] = centerOfMass.geometry.coordinates[0];
     data["lon"] = centerOfMass.geometry.coordinates[1];
+  } else {
+    throw new Error("Köşeleri kontrol ediniz.");
   }
 
   if (typeof data["calisma_tarihi"] !== "string") {
@@ -295,6 +315,8 @@ const importData = (element, user) => {
         "/" +
         data["calisma_tarihi"].getFullYear();
     }
+  } else {
+    throw new Error("Çalışma tarihini kontrol ediniz.");
   }
   //   Object.entries(element).forEach(([key, value]) => {
   //     data[key] = replaceVal(value); // key - value
