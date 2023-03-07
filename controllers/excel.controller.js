@@ -152,6 +152,12 @@ const importData = (element, user) => {
     }
   });
   // data["editorname"] = this.$store.state.auth.user.username;
+  if (
+    typeof data["zone"] !== "string" &&
+    (data["zone"] > 39 || data["zone"] < 35)
+  ) {
+    throw new Error("Zone bilgisini kontrol ediniz!");
+  }
   if (typeof data["zone"] === "string" && data["zone"].includes(",")) {
     data["zone"] = data["zone"].split(",").map(Number);
   }
@@ -159,33 +165,33 @@ const importData = (element, user) => {
   var latlon = null;
   var dummyCity = null;
   var thisCity = null;
-  if (data["il"] in citiesLatLongjson[0]) {
-    if (data["il"] != null || data["il"] != undefined) {
-      if (data["il"].includes(",")) {
-        dummyCity = data["il"].split(",")[0];
-        thisCity = citiesLatLongjson.filter(
-          (city) => city.il == dummyCity.trim()
-        )[0];
-      } else {
-        dummyCity = data["il"];
-        thisCity = citiesLatLongjson.filter(
-          (city) => city.il == dummyCity.trim()
-        )[0];
+  citiesLatLongjson.forEach((element) => {
+    if ((data["il"] = element.il)) {
+      if (data["il"] != null || data["il"] != undefined) {
+        if (data["il"].includes(",")) {
+          dummyCity = data["il"].split(",")[0];
+          thisCity = citiesLatLongjson.filter(
+            (city) => city.il == dummyCity.trim()
+          )[0];
+        } else {
+          dummyCity = data["il"];
+          thisCity = citiesLatLongjson.filter(
+            (city) => city.il == dummyCity.trim()
+          )[0];
+        }
+        data["lat"] = parseFloat(thisCity.longitude);
+        data["lon"] = parseFloat(thisCity.latitude);
       }
-      data["lat"] = parseFloat(thisCity.longitude);
-      data["lon"] = parseFloat(thisCity.latitude);
+    } else {
+      //throw error to async upload function
+      throw new Error("İl alanını kontrol ediniz.");
     }
-  } else {
-    //throw error to async upload function
-    throw new Error("İl alanını kontrol ediniz.");
-  }
+  });
 
   if (data["x"] != null && data["y"] != null) {
     latlon = converter(data["x"], data["y"], data["zone"], data["datum"]);
     data["lat"] = latlon.lng;
     data["lon"] = latlon.lat;
-  } else {
-    throw new Error("x, y, zone ve datum bilgilerini kontrol ediniz.");
   }
 
   if (
@@ -244,8 +250,6 @@ const importData = (element, user) => {
     var lng3 = lng1 + Math.atan2(bY, Math.cos(lat1) + bX);
     data["lat"] = lng3.toDeg();
     data["lon"] = lat3.toDeg();
-  } else {
-    throw new Error("Profil başlangıç ve bitiş noktalarını kontrol ediniz.");
   }
 
   if (
@@ -299,8 +303,6 @@ const importData = (element, user) => {
     var centerOfMass = centerofmass.default(geoJson);
     data["lat"] = centerOfMass.geometry.coordinates[0];
     data["lon"] = centerOfMass.geometry.coordinates[1];
-  } else {
-    throw new Error("Köşeleri kontrol ediniz.");
   }
 
   if (typeof data["calisma_tarihi"] !== "string") {
@@ -430,16 +432,20 @@ const replaceVal = (value) => {
 };
 
 const converter = (x, y, zone, datum) => {
-  var utm = null;
-  if (datum === "WGS_84") {
-    utm = new utmObj("WGS 84");
-  }
-  if (datum === "ED_50") {
-    utm = new utmObj("ED50");
-  }
-  var point = utm.convertUtmToLatLng(x, y, zone, "N");
+  if (x && y && zone && datum) {
+    var utm = null;
+    if (datum === "WGS_84") {
+      utm = new utmObj("WGS 84");
+    }
+    if (datum === "ED_50") {
+      utm = new utmObj("ED50");
+    }
+    var point = utm.convertUtmToLatLng(x, y, zone, "N");
 
-  return point;
+    return point;
+  } else {
+    throw new Error("Koordinat bilgilerini kontrol ediniz.");
+  }
 };
 
 const getListFiles = (req, res) => {
