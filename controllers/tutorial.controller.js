@@ -28,7 +28,7 @@ exports.findAll = (req, res) => {
   if (Array.isArray(il)) {
     //create a new array with the arrays in il array
 
-    areaJson = il[0];
+    areaJson = il;
   } else {
     condition = il ? { il: { [Op.iLike]: `%${il}%` } } : null;
   }
@@ -53,8 +53,11 @@ exports.findAll = (req, res) => {
   }
   var locationCondition = null;
   var coords = null;
+  var areatype = null;
 
   if (areaJson != null) {
+    il.length === 1 ? (areatype = "Polygon") : (areatype = "MultiPolygon");
+
     requestFlag == "userSearch"
       ? (coords = "[" + areaJson + "]")
       : (coords = areaJson);
@@ -64,7 +67,7 @@ exports.findAll = (req, res) => {
         Tutorial.sequelize.col("location"),
         Tutorial.sequelize.fn(
           "ST_GeomFromGeoJSON",
-          '{"type":"Polygon","coordinates":[' + coords + "]}"
+          '{"type":"' + areatype + '","coordinates":[' + coords + "]}"
         )
       ),
       true
@@ -79,6 +82,8 @@ exports.findAll = (req, res) => {
       locationCondition != null
         ? [
             locationCondition,
+            ilce ? { ilce: { [Op.iLike]: `%${ilce}%` } } : null,
+
             yontem
               ? {
                   [Op.or]: [
@@ -116,6 +121,7 @@ exports.findAll = (req, res) => {
       res.send(response);
     })
     .catch((err) => {
+      console.log(err);
       res.status(500).send({
         message:
           err.message || "Some error occurred while retrieving tutorials.",
@@ -125,16 +131,19 @@ exports.findAll = (req, res) => {
 
 exports.findAllgetAll = (req, res) => {
   const { il, ilce, yontem, userStatus, requestFlag } = req.query;
+  var areatype = null;
   var condition = null;
   var locationCondition = null;
   if (Array.isArray(il)) {
+    il.length === 1 ? (areatype = "Polygon") : (areatype = "MultiPolygon");
+
     locationCondition = Tutorial.sequelize.where(
       Tutorial.sequelize.fn(
         "ST_Within",
         Tutorial.sequelize.col("location"),
         Tutorial.sequelize.fn(
           "ST_GeomFromGeoJSON",
-          '{"type":"Polygon","coordinates":[' + il + "]}"
+          '{"type":"' + areatype + '","coordinates":[' + il + "]}"
         )
       ),
       true
@@ -168,6 +177,7 @@ exports.findAllgetAll = (req, res) => {
       locationCondition != null
         ? [
             locationCondition,
+            ilce ? { ilce: { [Op.iLike]: `%${ilce}%` } } : null,
             yontem
               ? {
                   [Op.or]: [

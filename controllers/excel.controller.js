@@ -165,30 +165,34 @@ const importData = (element, user) => {
   var latlon = null;
   var dummyCity = null;
   var thisCity = null;
-  citiesLatLongjson.forEach((element) => {
-    if ((data["il"] = element.il)) {
-      if (data["il"] != null || data["il"] != undefined) {
-        if (data["il"].includes(",")) {
-          dummyCity = data["il"].split(",")[0];
-          thisCity = citiesLatLongjson.filter(
-            (city) => city.il == dummyCity.trim()
-          )[0];
-        } else {
-          dummyCity = data["il"];
-          thisCity = citiesLatLongjson.filter(
-            (city) => city.il == dummyCity.trim()
-          )[0];
-        }
-        data["lat"] = parseFloat(thisCity.longitude);
-        data["lon"] = parseFloat(thisCity.latitude);
-      }
-    } else {
-      //throw error to async upload function
-      throw new Error("İl alanını kontrol ediniz.");
-    }
-  });
+  //find il in citiesLatLongjson and get lat and lon
+  var findCity = citiesLatLongjson.find((item) => item.il === data["il"]);
 
-  if (data["x"] != null && data["y"] != null) {
+  if (findCity != null || findCity != undefined) {
+    if (data["il"] != null || data["il"] != undefined) {
+      if (data["il"].includes(",")) {
+        dummyCity = data["il"].split(",")[0];
+        thisCity = citiesLatLongjson.filter(
+          (city) => city.il == dummyCity.trim()
+        )[0];
+      } else {
+        dummyCity = data["il"];
+        thisCity = citiesLatLongjson.filter(
+          (city) => city.il == dummyCity.trim()
+        )[0];
+      }
+      data["lat"] = parseFloat(thisCity.longitude);
+      data["lon"] = parseFloat(thisCity.latitude);
+    }
+  } else {
+    //throw error to async upload function
+    throw new Error("İl alanını kontrol ediniz.");
+  }
+
+  if (
+    (data["x"] != null || data["x"] != 0) &&
+    (data["y"] != null || data["y"] != 0)
+  ) {
     latlon = converter(data["x"], data["y"], data["zone"], data["datum"]);
     data["lat"] = latlon.lng;
     data["lon"] = latlon.lat;
@@ -304,7 +308,6 @@ const importData = (element, user) => {
     data["lat"] = centerOfMass.geometry.coordinates[0];
     data["lon"] = centerOfMass.geometry.coordinates[1];
   }
-
   if (typeof data["calisma_tarihi"] !== "string") {
     var regex = /^(181[2-9]|18[2-9]\d|19\d\d|2\d{3}|30[0-3]\d|304[0-8])$/;
     if (regex.test(data["calisma_tarihi"])) {
@@ -317,6 +320,8 @@ const importData = (element, user) => {
         "/" +
         data["calisma_tarihi"].getFullYear();
     }
+  } else if (typeof data["calisma_tarihi"] === "string") {
+    data["calisma_tarihi"] = data["calisma_tarihi"];
   } else {
     throw new Error("Çalışma tarihini kontrol ediniz.");
   }
@@ -432,7 +437,12 @@ const replaceVal = (value) => {
 };
 
 const converter = (x, y, zone, datum) => {
-  if (x && y && zone && datum) {
+  if (
+    (x != null || x != undefined) &&
+    (y != null || y != undefined) &&
+    (zone != null || zone != undefined) &&
+    (datum != null || datum != undefined)
+  ) {
     var utm = null;
     if (datum === "WGS_84") {
       utm = new utmObj("WGS 84");
