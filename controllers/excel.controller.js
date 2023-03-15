@@ -127,7 +127,6 @@ const upload = async (req, res) => {
         });
       });
   } catch (e) {
-    console.log("hata", e);
     res.status(500).send({
       message: "Could not upload the file: " + req.file.originalname,
     });
@@ -152,6 +151,9 @@ const importData = (element, user) => {
     }
   });
   // data["editorname"] = this.$store.state.auth.user.username;
+  if (data["datum"] !== "ED_50" || data["datum"] !== "WGS_84") {
+    throw new Error("Datum bilgisini kontrol ediniz!");
+  }
   if (
     typeof data["zone"] !== "string" &&
     (data["zone"] > 39 || data["zone"] < 35)

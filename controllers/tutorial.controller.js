@@ -3,6 +3,8 @@ const Tutorial = db.tutorials;
 const Sequelize = db.Sequelize;
 const Op = db.Sequelize.Op;
 const _ = require("lodash");
+///import utm-latlng
+const geojsonobj = require("geojson");
 
 const getPagination = (page, size) => {
   const limit = size ? +size : 3;
@@ -244,7 +246,7 @@ exports.findAllgetAll = (req, res) => {
             ])
           )
         );
-        resdata = forPlot;
+        resdata = geojsonobj.parse(forPlot, { Point: ["lon", "lat"] });
       } else {
         var arr = [];
         data.forEach((item) => {
@@ -257,7 +259,6 @@ exports.findAllgetAll = (req, res) => {
           delete item.dataValues.lon;
           arr.push(item.dataValues);
         });
-        resdata = arr;
       }
 
       res.send(resdata);
@@ -337,7 +338,7 @@ exports.findAllGeo = (req, res) => {
             ])
           )
         );
-        resdata = forPlot;
+        resdata = geojsonobj.parse(forPlot, { Point: ["lon", "lat"] });
       } else {
         var arr = [];
         data.forEach((item) => {
