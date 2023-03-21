@@ -3,8 +3,13 @@ const Tutorial = db.tutorials;
 const Sequelize = db.Sequelize;
 const Op = db.Sequelize.Op;
 const _ = require("lodash");
+
 ///import utm-latlng
 const geojsonobj = require("geojson");
+const fs = require("fs");
+
+//read tr-cities-utf8.geojson geojson file
+const geojson = JSON.parse(fs.readFileSync("tr-cities-utf8.geojson"));
 
 const getPagination = (page, size) => {
   const limit = size ? +size : 3;
@@ -26,11 +31,13 @@ exports.findAll = (req, res) => {
     req.query;
   const { limit, offset } = getPagination(page, size);
   var filters = {};
+  var ilArray = geojson.features.filter((item) => item.properties.name == il);
+
   var condition = null;
-  if (Array.isArray(il)) {
+  if (ilArray.length !== 0) {
     //create a new array with the arrays in il array
 
-    areaJson = il;
+    areaJson = ilArray;
   } else {
     condition = il ? { il: { [Op.iLike]: `%${il}%` } } : null;
   }
@@ -54,22 +61,15 @@ exports.findAll = (req, res) => {
     condition = il ? { [Op.or]: filters } : null;
   }
   var locationCondition = null;
-  var coords = null;
-  var areatype = null;
 
   if (areaJson != null) {
-    il.length === 1 ? (areatype = "Polygon") : (areatype = "MultiPolygon");
-
-    requestFlag == "userSearch"
-      ? (coords = "[" + areaJson + "]")
-      : (coords = areaJson);
     locationCondition = Tutorial.sequelize.where(
       Tutorial.sequelize.fn(
         "ST_Within",
         Tutorial.sequelize.col("location"),
         Tutorial.sequelize.fn(
           "ST_GeomFromGeoJSON",
-          '{"type":"' + areatype + '","coordinates":[' + coords + "]}"
+          JSON.stringify(areaJson[0].geometry)
         )
       ),
       true
@@ -133,19 +133,19 @@ exports.findAll = (req, res) => {
 
 exports.findAllgetAll = (req, res) => {
   const { il, ilce, yontem, userStatus, requestFlag } = req.query;
-  var areatype = null;
+  //find il in geojson
+  var ilArray = geojson.features.filter((item) => item.properties.name == il);
+
   var condition = null;
   var locationCondition = null;
-  if (Array.isArray(il)) {
-    il.length === 1 ? (areatype = "Polygon") : (areatype = "MultiPolygon");
-
+  if (ilArray.length !== 0) {
     locationCondition = Tutorial.sequelize.where(
       Tutorial.sequelize.fn(
         "ST_Within",
         Tutorial.sequelize.col("location"),
         Tutorial.sequelize.fn(
           "ST_GeomFromGeoJSON",
-          '{"type":"' + areatype + '","coordinates":[' + il + "]}"
+          JSON.stringify(ilArray[0].geometry)
         )
       ),
       true
@@ -259,11 +259,13 @@ exports.findAllgetAll = (req, res) => {
           delete item.dataValues.lon;
           arr.push(item.dataValues);
         });
+        resdata = arr;
       }
 
       res.send(resdata);
     })
     .catch((err) => {
+      console.log(err);
       res.status(500).send({
         message:
           err.message || "Some error occurred while retrieving tutorials.",

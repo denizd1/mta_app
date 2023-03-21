@@ -151,9 +151,7 @@ const importData = (element, user) => {
     }
   });
   // data["editorname"] = this.$store.state.auth.user.username;
-  if (data["datum"] !== "ED_50" || data["datum"] !== "WGS_84") {
-    throw new Error("Datum bilgisini kontrol ediniz!");
-  }
+
   if (
     typeof data["zone"] !== "string" &&
     (data["zone"] > 39 || data["zone"] < 35)
@@ -170,8 +168,8 @@ const importData = (element, user) => {
   //find il in citiesLatLongjson and get lat and lon
   var findCity = citiesLatLongjson.find((item) => item.il === data["il"]);
 
-  if (findCity != null || findCity != undefined) {
-    if (data["il"] != null || data["il"] != undefined) {
+  if (findCity !== null || findCity !== undefined) {
+    if (data["il"] !== null || data["il"] !== undefined) {
       if (data["il"].includes(",")) {
         dummyCity = data["il"].split(",")[0];
         thisCity = citiesLatLongjson.filter(
@@ -192,8 +190,8 @@ const importData = (element, user) => {
   }
 
   if (
-    (data["x"] != null || data["x"] != 0) &&
-    (data["y"] != null || data["y"] != 0)
+    (data["x"] !== null || data["x"] !== 0) &&
+    (data["y"] !== null || data["y"] !== 0)
   ) {
     latlon = converter(data["x"], data["y"], data["zone"], data["datum"]);
     data["lat"] = latlon.lng;
@@ -201,10 +199,10 @@ const importData = (element, user) => {
   }
 
   if (
-    data["profil_baslangic_x"] != null &&
-    data["profil_baslangic_y"] != null &&
-    data["profil_bitis_x"] != null &&
-    data["profil_bitis_y"] != null
+    data["profil_baslangic_x"] !== null &&
+    data["profil_baslangic_y"] !== null &&
+    data["profil_bitis_x"] !== null &&
+    data["profil_bitis_y"] !== null
   ) {
     var polyLineStart = converter(
       data["profil_baslangic_x"],
@@ -259,10 +257,10 @@ const importData = (element, user) => {
   }
 
   if (
-    data["a_1"] != null &&
-    data["a_2"] != null &&
-    data["a_3"] != null &&
-    data["a_4"] != null
+    data["a_1"] !== null &&
+    data["a_2"] !== null &&
+    data["a_3"] !== null &&
+    data["a_4"] !== null
   ) {
     var corners = [data["a_1"], data["a_2"], data["a_3"], data["a_4"]]; //typeof string
     var coordinates = [];
@@ -440,17 +438,18 @@ const replaceVal = (value) => {
 
 const converter = (x, y, zone, datum) => {
   if (
-    (x != null || x != undefined) &&
-    (y != null || y != undefined) &&
-    (zone != null || zone != undefined) &&
-    (datum != null || datum != undefined)
+    (x !== null || x !== undefined) &&
+    (y !== null || y !== undefined) &&
+    (zone !== null || zone !== undefined) &&
+    (datum !== null || datum !== undefined)
   ) {
     var utm = null;
     if (datum === "WGS_84") {
       utm = new utmObj("WGS 84");
-    }
-    if (datum === "ED_50") {
+    } else if (datum === "ED_50") {
       utm = new utmObj("ED50");
+    } else {
+      throw new Error("Datum bilgisini kontrol ediniz!");
     }
     var point = utm.convertUtmToLatLng(x, y, zone, "N");
 
