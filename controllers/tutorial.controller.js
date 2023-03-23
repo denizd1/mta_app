@@ -34,10 +34,12 @@ exports.findAll = (req, res) => {
   var ilArray = geojson.features.filter((item) => item.properties.name == il);
 
   var condition = null;
-  if (ilArray.length !== 0) {
+  if (ilArray.length !== 0 && areaJson === null) {
     //create a new array with the arrays in il array
 
     areaJson = ilArray;
+  } else if (areaJson != null) {
+    areaJson = [JSON.parse(areaJson)];
   } else {
     condition = il ? { il: { [Op.iLike]: `%${il}%` } } : null;
   }
@@ -61,6 +63,7 @@ exports.findAll = (req, res) => {
     condition = il ? { [Op.or]: filters } : null;
   }
   var locationCondition = null;
+  console.log(areaJson);
 
   if (areaJson != null) {
     locationCondition = Tutorial.sequelize.where(
