@@ -34,7 +34,7 @@ exports.findAll = (req, res) => {
   var ilArray = geojson.features.filter((item) => item.properties.name == il);
 
   var condition = null;
-  if (ilArray.length !== 0 && areaJson === null) {
+  if (ilArray.length !== 0 && (areaJson === null || areaJson === undefined)) {
     //create a new array with the arrays in il array
 
     areaJson = ilArray;
