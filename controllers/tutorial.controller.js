@@ -3,6 +3,7 @@ const Tutorial = db.tutorials;
 const Sequelize = db.Sequelize;
 const Op = db.Sequelize.Op;
 const _ = require("lodash");
+const utmObj = require("utm-latlng");
 
 ///import utm-latlng
 const geojsonobj = require("geojson");
@@ -217,6 +218,41 @@ exports.findAllgetAll = (req, res) => {
     .then((data) => {
       var resdata = null;
       if (requestFlag !== "excel") {
+        //need to create line for geojson if profil_baslangic_x and profil_baslangic_y is not null
+        data.forEach((item) => {
+          if (
+            item.profil_baslangic_x !== null &&
+            item.profil_baslangic_y !== null &&
+            item.profil_bitis_x !== null &&
+            item.profil_bitis_y !== null
+          ) {
+            var utm = null;
+            if (item.datum === "WGS_84") {
+              utm = new utmObj("WGS 84");
+            } else if (item.datum === "ED_50") {
+              utm = new utmObj("ED50");
+            }
+
+            var lineStart = utm.convertUtmToLatLng(
+              item.profil_baslangic_x,
+              item.profil_baslangic_y,
+              item.zone,
+              "N"
+            );
+            var lineEnd = utm.convertUtmToLatLng(
+              item.profil_bitis_x,
+              item.profil_bitis_y,
+              item.zone,
+              "N"
+            );
+            item.line = [
+              [lineStart.lat, lineStart.lng],
+              [lineEnd.lat, lineEnd.lng],
+            ];
+          } else {
+            item.line = null;
+          }
+        });
         var forPlot = [];
         const pick = (obj, arr) =>
           arr.reduce(
@@ -239,6 +275,7 @@ exports.findAllgetAll = (req, res) => {
               "profil_bitis_x",
               "profil_bitis_y",
               "zone",
+              "line",
               "datum",
               "a_1",
               "a_2",
@@ -249,7 +286,16 @@ exports.findAllgetAll = (req, res) => {
             ])
           )
         );
-        resdata = geojsonobj.parse(forPlot, { Point: ["lon", "lat"] });
+        const lines = [];
+        forPlot.forEach((item) => {
+          if (item.line !== null) {
+            lines.push(item);
+          }
+        });
+        var resPoints = geojsonobj.parse(forPlot, { Point: ["lon", "lat"] });
+        var resLines = lines;
+
+        resdata = { resPoints: resPoints, resLines: resLines };
       } else {
         var arr = [];
         data.forEach((item) => {
@@ -311,6 +357,40 @@ exports.findAllGeo = (req, res) => {
     .then((data) => {
       var resdata = null;
       if (requestFlag !== "excel") {
+        data.forEach((item) => {
+          if (
+            item.profil_baslangic_x !== null &&
+            item.profil_baslangic_y !== null &&
+            item.profil_bitis_x !== null &&
+            item.profil_bitis_y !== null
+          ) {
+            var utm = null;
+            if (item.datum === "WGS_84") {
+              utm = new utmObj("WGS 84");
+            } else if (item.datum === "ED_50") {
+              utm = new utmObj("ED50");
+            }
+
+            var lineStart = utm.convertUtmToLatLng(
+              item.profil_baslangic_x,
+              item.profil_baslangic_y,
+              item.zone,
+              "N"
+            );
+            var lineEnd = utm.convertUtmToLatLng(
+              item.profil_bitis_x,
+              item.profil_bitis_y,
+              item.zone,
+              "N"
+            );
+            item.line = [
+              [lineStart.lat, lineStart.lng],
+              [lineEnd.lat, lineEnd.lng],
+            ];
+          } else {
+            item.line = null;
+          }
+        });
         var forPlot = [];
         const pick = (obj, arr) =>
           arr.reduce(
@@ -343,7 +423,16 @@ exports.findAllGeo = (req, res) => {
             ])
           )
         );
-        resdata = geojsonobj.parse(forPlot, { Point: ["lon", "lat"] });
+        const lines = [];
+        forPlot.forEach((item) => {
+          if (item.line !== null) {
+            lines.push(item);
+          }
+        });
+        var resPoints = geojsonobj.parse(forPlot, { Point: ["lon", "lat"] });
+        var resLines = lines;
+
+        resdata = { resPoints: resPoints, resLines: resLines };
       } else {
         var arr = [];
         data.forEach((item) => {
