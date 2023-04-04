@@ -168,8 +168,8 @@ const importData = (element, user) => {
   //find il in citiesLatLongjson and get lat and lon
   var findCity = citiesLatLongjson.find((item) => item.il === data["il"]);
 
-  if (findCity !== null || findCity !== undefined) {
-    if (data["il"] !== null || data["il"] !== undefined) {
+  if (findCity !== null && findCity !== undefined) {
+    if (data["il"] !== null && data["il"] !== undefined) {
       if (data["il"].includes(",")) {
         dummyCity = data["il"].split(",")[0];
         thisCity = citiesLatLongjson.filter(

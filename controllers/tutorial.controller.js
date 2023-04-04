@@ -64,7 +64,6 @@ exports.findAll = (req, res) => {
     condition = il ? { [Op.or]: filters } : null;
   }
   var locationCondition = null;
-  console.log(areaJson);
 
   if (areaJson != null) {
     locationCondition = Tutorial.sequelize.where(
