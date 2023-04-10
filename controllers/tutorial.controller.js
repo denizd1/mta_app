@@ -11,6 +11,7 @@ const fs = require("fs");
 
 //read tr-cities-utf8.geojson geojson file
 const geojson = JSON.parse(fs.readFileSync("tr-cities-utf8.geojson"));
+const ilceler = JSON.parse(fs.readFileSync("tr_ilce.geojson"));
 
 const getPagination = (page, size) => {
   const limit = size ? +size : 3;
@@ -35,15 +36,25 @@ exports.findAll = (req, res) => {
   var ilArray = geojson.features.filter((item) => item.properties.name == il);
 
   var condition = null;
+
   if (ilArray.length !== 0 && (areaJson === null || areaJson === undefined)) {
     //create a new array with the arrays in il array
-
     areaJson = ilArray;
   } else if (areaJson != null) {
-    areaJson = [JSON.parse(areaJson)];
+    var reg = /^\d+$/;
+
+    if (reg.test(areaJson)) {
+      ilArray = ilceler.features.filter(
+        (item) => item.properties.Id == areaJson
+      );
+      areaJson = ilArray;
+    } else {
+      areaJson = [JSON.parse(areaJson)];
+    }
   } else {
     condition = il ? { il: { [Op.iLike]: `%${il}%` } } : null;
   }
+  console.log(areaJson);
 
   if (requestFlag == "userSearch") {
     var fields = Object.keys(
@@ -324,18 +335,36 @@ exports.findAllgetAll = (req, res) => {
 //Find all tutorials inside the geojson polygon
 exports.findAllGeo = (req, res) => {
   const { geojson, yontem, userStatus, requestFlag } = req.query;
-
-  var locationCondition = Tutorial.sequelize.where(
-    Tutorial.sequelize.fn(
-      "ST_Within",
-      Tutorial.sequelize.col("location"),
-      Tutorial.sequelize.fn(
-        "ST_GeomFromGeoJSON",
-        '{"type":"Polygon","coordinates":[[' + geojson + "]]}"
-      )
-    ),
-    true
+  var ilceArray = ilceler.features.filter(
+    (item) => item.properties.Id == geojson
   );
+  var locationCondition = null;
+
+  if (ilceArray.length > 0) {
+    locationCondition = Tutorial.sequelize.where(
+      Tutorial.sequelize.fn(
+        "ST_Within",
+        Tutorial.sequelize.col("location"),
+        Tutorial.sequelize.fn(
+          "ST_GeomFromGeoJSON",
+          JSON.stringify(ilceArray[0].geometry)
+        )
+      ),
+      true
+    );
+  } else {
+    locationCondition = Tutorial.sequelize.where(
+      Tutorial.sequelize.fn(
+        "ST_Within",
+        Tutorial.sequelize.col("location"),
+        Tutorial.sequelize.fn(
+          "ST_GeomFromGeoJSON",
+          '{"type":"Polygon","coordinates":[[' + geojson + "]]}"
+        )
+      ),
+      true
+    );
+  }
 
   Tutorial.findAll({
     where: [
