@@ -33,7 +33,9 @@ exports.findAll = (req, res) => {
     req.query;
   const { limit, offset } = getPagination(page, size);
   var filters = {};
-  var ilArray = geojson.features.filter((item) => item.properties.name == il);
+  var ilArray = geojson.features.filter(
+    (item) => item.properties.name.toLowerCase() == il.toLowerCase()
+  );
 
   var condition = null;
 
@@ -148,7 +150,9 @@ exports.findAll = (req, res) => {
 exports.findAllgetAll = (req, res) => {
   const { il, ilce, yontem, userStatus, requestFlag } = req.query;
   //find il in geojson
-  var ilArray = geojson.features.filter((item) => item.properties.name == il);
+  var ilArray = geojson.features.filter(
+    (item) => item.properties.name.toLowerCase() == il.toLowerCase()
+  );
 
   var condition = null;
   var locationCondition = null;
