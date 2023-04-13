@@ -33,13 +33,20 @@ exports.findAll = (req, res) => {
     req.query;
   const { limit, offset } = getPagination(page, size);
   var filters = {};
-  var ilArray = geojson.features.filter(
-    (item) => item.properties.name.toLowerCase() == il.toLowerCase()
-  );
-
+  console.log(ilArray);
+  if (il !== null && il !== undefined) {
+    var ilArray = geojson.features.filter(
+      (item) => item.properties.name.toLowerCase() == il.toLowerCase()
+    );
+  }
   var condition = null;
 
-  if (ilArray.length !== 0 && (areaJson === null || areaJson === undefined)) {
+  if (
+    ilArray !== null &&
+    ilArray !== undefined &&
+    ilArray.length !== 0 &&
+    (areaJson === null || areaJson === undefined)
+  ) {
     //create a new array with the arrays in il array
     areaJson = ilArray;
   } else if (areaJson != null) {
@@ -56,7 +63,6 @@ exports.findAll = (req, res) => {
   } else {
     condition = il ? { il: { [Op.iLike]: `%${il}%` } } : null;
   }
-  console.log(areaJson);
 
   if (requestFlag == "userSearch") {
     var fields = Object.keys(
@@ -150,13 +156,14 @@ exports.findAll = (req, res) => {
 exports.findAllgetAll = (req, res) => {
   const { il, ilce, yontem, userStatus, requestFlag } = req.query;
   //find il in geojson
-  var ilArray = geojson.features.filter(
-    (item) => item.properties.name.toLowerCase() == il.toLowerCase()
-  );
-
+  if (il !== null && il !== undefined) {
+    var ilArray = geojson.features.filter(
+      (item) => item.properties.name.toLowerCase() == il.toLowerCase()
+    );
+  }
   var condition = null;
   var locationCondition = null;
-  if (ilArray.length !== 0) {
+  if (ilArray !== null && ilArray !== undefined && ilArray.length !== 0) {
     locationCondition = Tutorial.sequelize.where(
       Tutorial.sequelize.fn(
         "ST_Within",
