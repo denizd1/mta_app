@@ -33,7 +33,6 @@ exports.findAll = (req, res) => {
     req.query;
   const { limit, offset } = getPagination(page, size);
   var filters = {};
-  console.log(ilArray);
   if (il !== null && il !== undefined) {
     var ilArray = geojson.features.filter(
       (item) => item.properties.name.toLowerCase() == il.toLowerCase()
@@ -87,12 +86,12 @@ exports.findAll = (req, res) => {
   if (areaJson != null) {
     locationCondition = Tutorial.sequelize.where(
       Tutorial.sequelize.fn(
-        "ST_Within",
-        Tutorial.sequelize.col("location"),
+        "ST_Contains",
         Tutorial.sequelize.fn(
           "ST_GeomFromGeoJSON",
           JSON.stringify(areaJson[0].geometry)
-        )
+        ),
+        Tutorial.sequelize.col("location")
       ),
       true
     );
@@ -166,12 +165,13 @@ exports.findAllgetAll = (req, res) => {
   if (ilArray !== null && ilArray !== undefined && ilArray.length !== 0) {
     locationCondition = Tutorial.sequelize.where(
       Tutorial.sequelize.fn(
-        "ST_Within",
-        Tutorial.sequelize.col("location"),
+        "ST_Contains",
+
         Tutorial.sequelize.fn(
           "ST_GeomFromGeoJSON",
           JSON.stringify(ilArray[0].geometry)
-        )
+        ),
+        Tutorial.sequelize.col("location")
       ),
       true
     );
@@ -354,24 +354,25 @@ exports.findAllGeo = (req, res) => {
   if (ilceArray.length > 0) {
     locationCondition = Tutorial.sequelize.where(
       Tutorial.sequelize.fn(
-        "ST_Within",
-        Tutorial.sequelize.col("location"),
+        "ST_Contains",
+
         Tutorial.sequelize.fn(
           "ST_GeomFromGeoJSON",
           JSON.stringify(ilceArray[0].geometry)
-        )
+        ),
+        Tutorial.sequelize.col("location")
       ),
       true
     );
   } else {
     locationCondition = Tutorial.sequelize.where(
       Tutorial.sequelize.fn(
-        "ST_Within",
-        Tutorial.sequelize.col("location"),
+        "ST_Contains",
         Tutorial.sequelize.fn(
           "ST_GeomFromGeoJSON",
           '{"type":"Polygon","coordinates":[[' + geojson + "]]}"
-        )
+        ),
+        Tutorial.sequelize.col("location")
       ),
       true
     );
