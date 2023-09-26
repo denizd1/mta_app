@@ -62,6 +62,7 @@ app.get("/api/getcsrftoken", csrfProtection, function (req, res) {
 require(__dirname + "/routes/tutorial.routes")(app);
 require(__dirname + "/routes/auth.routes")(app);
 require(__dirname + "/routes/user.routes")(app);
+require(__dirname + "/routes/rapor.routes")(app);
 
 db.sequelize.sync();
 // db.sequelize.sync({force: true}).then(() => {

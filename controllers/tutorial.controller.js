@@ -4,10 +4,11 @@ const Sequelize = db.Sequelize;
 const Op = db.Sequelize.Op;
 const _ = require("lodash");
 const utmObj = require("utm-latlng");
+const fs = require("fs");
+const ExcelJS = require("exceljs");
 
 ///import utm-latlng
 const geojsonobj = require("geojson");
-const fs = require("fs");
 
 //read tr-cities-utf8.geojson geojson file
 const geojson = JSON.parse(fs.readFileSync("tr-cities-utf8.geojson"));
@@ -29,8 +30,31 @@ const getPagingData = (data, page, limit) => {
 
 // Retrieve all Tutorials from the database.
 exports.findAll = (req, res) => {
-  let { page, size, il, ilce, yontem, userStatus, requestFlag, areaJson } =
-    req.query;
+  let {
+    page,
+    size,
+    il,
+    ilce,
+    yontem,
+    alt_yontem,
+    calisma_amaci,
+    ham_veri,
+    proje_kodu,
+    kuyu_arsiv_no,
+    jeofizik_arsiv_no,
+    derleme_no,
+    cd_no,
+    zone,
+    datum,
+    besyuzbin,
+    yuzbin,
+    yirmibesbin,
+    calisma_tarihi,
+    userStatus,
+    requestFlag,
+    areaJson,
+  } = req.query;
+
   const { limit, offset } = getPagination(page, size);
   var filters = {};
   if (il !== null && il !== undefined) {
@@ -39,6 +63,18 @@ exports.findAll = (req, res) => {
     );
   }
   var condition = null;
+
+  //check if yontem or alt_yontem is array. if not, convert it to array
+  if (yontem !== null && yontem !== undefined) {
+    if (!Array.isArray(yontem)) {
+      yontem = [yontem];
+    }
+  }
+  if (alt_yontem !== null && alt_yontem !== undefined) {
+    if (!Array.isArray(alt_yontem)) {
+      alt_yontem = [alt_yontem];
+    }
+  }
 
   if (
     ilArray !== null &&
@@ -75,6 +111,7 @@ exports.findAll = (req, res) => {
         "yuzbin",
         "yirmibesbin",
         "besyuzbin",
+        "proje_kodu",
       ])
     );
 
@@ -130,6 +167,54 @@ exports.findAll = (req, res) => {
                   ],
                 }
               : null,
+            alt_yontem
+              ? {
+                  [Op.or]: [
+                    { yontem: { [Op.or]: alt_yontem } },
+                    { alt_yontem: { [Op.or]: alt_yontem } },
+                  ],
+                }
+              : null,
+            calisma_amaci !== null && calisma_amaci !== undefined
+              ? { calisma_amaci: { [Op.iLike]: `%${calisma_amaci}%` } }
+              : null,
+            calisma_tarihi !== null && calisma_tarihi !== undefined
+              ? { calisma_tarihi: { [Op.iLike]: `%${calisma_tarihi}%` } }
+              : null,
+            ham_veri !== null && ham_veri !== undefined
+              ? { ham_veri: { [Op.iLike]: `%${ham_veri}%` } }
+              : null,
+            proje_kodu !== null && proje_kodu !== undefined
+              ? { proje_kodu: { [Op.iLike]: `%${proje_kodu}%` } }
+              : null,
+            kuyu_arsiv_no !== null && kuyu_arsiv_no !== undefined
+              ? { kuyu_arsiv_no: { [Op.iLike]: `%${kuyu_arsiv_no}%` } }
+              : null,
+            jeofizik_arsiv_no !== null && jeofizik_arsiv_no !== undefined
+              ? { jeofizik_arsiv_no: { [Op.iLike]: `%${jeofizik_arsiv_no}%` } }
+              : null,
+            derleme_no !== null && derleme_no !== undefined
+              ? { derleme_no: { [Op.iLike]: `%${derleme_no}%` } }
+              : null,
+            cd_no != null && cd_no !== undefined
+              ? { cd_no: { [Op.iLike]: `%${cd_no}%` } }
+              : null,
+            zone != null && zone !== undefined
+              ? { zone: { [Op.iLike]: `%${zone}%` } }
+              : null,
+            datum != null && datum !== undefined
+              ? { datum: { [Op.iLike]: `%${datum}%` } }
+              : null,
+            besyuzbin != null && besyuzbin !== undefined
+              ? { besyuzbin: { [Op.iLike]: `%${besyuzbin}%` } }
+              : null,
+            yuzbin != null && yuzbin !== undefined
+              ? { yuzbin: { [Op.iLike]: `%${yuzbin}%` } }
+              : null,
+            yirmibesbin != null && yirmibesbin !== undefined
+              ? { yirmibesbin: { [Op.iLike]: `%${yirmibesbin}%` } }
+              : null,
+
             //published will be true if the userStatus is 'user'. if not, it can be false or true.
             userStatus == "user"
               ? { published: true }
@@ -153,12 +238,43 @@ exports.findAll = (req, res) => {
 };
 
 exports.findAllgetAll = (req, res) => {
-  const { il, ilce, yontem, userStatus, requestFlag } = req.query;
+  let {
+    il,
+    ilce,
+    yontem,
+    alt_yontem,
+    calisma_amaci,
+    ham_veri,
+    proje_kodu,
+    kuyu_arsiv_no,
+    jeofizik_arsiv_no,
+    derleme_no,
+    cd_no,
+    zone,
+    datum,
+    besyuzbin,
+    yuzbin,
+    yirmibesbin,
+    calisma_tarihi,
+    userStatus,
+    requestFlag,
+  } = req.query;
   //find il in geojson
   if (il !== null && il !== undefined) {
     var ilArray = geojson.features.filter(
       (item) => item.properties.name.toLowerCase() == il.toLowerCase()
     );
+  }
+  //check if yontem or alt_yontem is array. if not, convert it to array
+  if (yontem !== null && yontem !== undefined) {
+    if (!Array.isArray(yontem)) {
+      yontem = [yontem];
+    }
+  }
+  if (alt_yontem !== null && alt_yontem !== undefined) {
+    if (!Array.isArray(alt_yontem)) {
+      alt_yontem = [alt_yontem];
+    }
   }
   var condition = null;
   var locationCondition = null;
@@ -192,6 +308,7 @@ exports.findAllgetAll = (req, res) => {
         "yuzbin",
         "yirmibesbin",
         "besyuzbin",
+        "proje_kodu",
       ])
     );
 
@@ -230,6 +347,54 @@ exports.findAllgetAll = (req, res) => {
                   ],
                 }
               : null,
+            alt_yontem
+              ? {
+                  [Op.or]: [
+                    { yontem: { [Op.or]: alt_yontem } },
+                    { alt_yontem: { [Op.or]: alt_yontem } },
+                  ],
+                }
+              : null,
+            calisma_amaci !== null && calisma_amaci !== undefined
+              ? { calisma_amaci: { [Op.iLike]: `%${calisma_amaci}%` } }
+              : null,
+            calisma_tarihi !== null && calisma_tarihi !== undefined
+              ? { calisma_tarihi: { [Op.iLike]: `%${calisma_tarihi}%` } }
+              : null,
+            ham_veri !== null && ham_veri !== undefined
+              ? { ham_veri: { [Op.iLike]: `%${ham_veri}%` } }
+              : null,
+            proje_kodu !== null && proje_kodu !== undefined
+              ? { proje_kodu: { [Op.iLike]: `%${proje_kodu}%` } }
+              : null,
+            kuyu_arsiv_no !== null && kuyu_arsiv_no !== undefined
+              ? { kuyu_arsiv_no: { [Op.iLike]: `%${kuyu_arsiv_no}%` } }
+              : null,
+            jeofizik_arsiv_no !== null && jeofizik_arsiv_no !== undefined
+              ? { jeofizik_arsiv_no: { [Op.iLike]: `%${jeofizik_arsiv_no}%` } }
+              : null,
+            derleme_no !== null && derleme_no !== undefined
+              ? { derleme_no: { [Op.iLike]: `%${derleme_no}%` } }
+              : null,
+            cd_no != null && cd_no !== undefined
+              ? { cd_no: { [Op.iLike]: `%${cd_no}%` } }
+              : null,
+            zone != null && zone !== undefined
+              ? { zone: { [Op.iLike]: `%${zone}%` } }
+              : null,
+            datum != null && datum !== undefined
+              ? { datum: { [Op.iLike]: `%${datum}%` } }
+              : null,
+            besyuzbin != null && besyuzbin !== undefined
+              ? { besyuzbin: { [Op.iLike]: `%${besyuzbin}%` } }
+              : null,
+            yuzbin != null && yuzbin !== undefined
+              ? { yuzbin: { [Op.iLike]: `%${yuzbin}%` } }
+              : null,
+            yirmibesbin != null && yirmibesbin !== undefined
+              ? { yirmibesbin: { [Op.iLike]: `%${yirmibesbin}%` } }
+              : null,
+
             //published will be true if the userStatus is 'user'. if not, it can be false or true.
             userStatus == "user"
               ? { published: true }
@@ -317,6 +482,7 @@ exports.findAllgetAll = (req, res) => {
         var resLines = lines;
 
         resdata = { resPoints: resPoints, resLines: resLines };
+        res.send(resdata);
       } else {
         var arr = [];
         data.forEach((item) => {
@@ -329,10 +495,44 @@ exports.findAllgetAll = (req, res) => {
           delete item.dataValues.lon;
           arr.push(item.dataValues);
         });
-        resdata = arr;
-      }
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("Sheet 1");
+        // Generate columns dynamically based on the keys in the first data object
+        const firstDataObject = arr[0];
+        const columns = Object.keys(firstDataObject).map((key) => ({
+          header: key,
+          key,
+          width: 20, // You can set a default width or adjust it as needed
+        }));
 
-      res.send(resdata);
+        // Set the columns in the worksheet
+        worksheet.columns = columns;
+
+        // Add the data rows
+        arr.forEach((row) => {
+          worksheet.addRow(row);
+        });
+
+        // Send the workbook as a response
+        res.setHeader(
+          "Content-Type",
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
+        res.setHeader(
+          "Content-Disposition",
+          "attachment; filename=export.xlsx"
+        );
+
+        workbook.xlsx
+          .write(res)
+          .then(() => {
+            res.end();
+          })
+          .catch((error) => {
+            console.error("Error sending XLSX file:", error);
+            res.status(500).send("Internal Server Error");
+          });
+      }
     })
     .catch((err) => {
       console.log(err);
@@ -473,6 +673,7 @@ exports.findAllGeo = (req, res) => {
         var resLines = lines;
 
         resdata = { resPoints: resPoints, resLines: resLines };
+        res.send(resdata);
       } else {
         var arr = [];
         data.forEach((item) => {
@@ -485,10 +686,44 @@ exports.findAllGeo = (req, res) => {
           delete item.dataValues.lon;
           arr.push(item.dataValues);
         });
-        resdata = arr;
-      }
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("Sheet 1");
+        // Generate columns dynamically based on the keys in the first data object
+        const firstDataObject = arr[0];
+        const columns = Object.keys(firstDataObject).map((key) => ({
+          header: key,
+          key,
+          width: 20, // You can set a default width or adjust it as needed
+        }));
 
-      res.send(resdata);
+        // Set the columns in the worksheet
+        worksheet.columns = columns;
+
+        // Add the data rows
+        arr.forEach((row) => {
+          worksheet.addRow(row);
+        });
+
+        // Send the workbook as a response
+        res.setHeader(
+          "Content-Type",
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
+        res.setHeader(
+          "Content-Disposition",
+          "attachment; filename=export.xlsx"
+        );
+
+        workbook.xlsx
+          .write(res)
+          .then(() => {
+            res.end();
+          })
+          .catch((error) => {
+            console.error("Error sending XLSX file:", error);
+            res.status(500).send("Internal Server Error");
+          });
+      }
     })
     .catch((err) => {
       res.status(500).send({
@@ -565,6 +800,37 @@ exports.delete = (req, res) => {
     .catch((err) => {
       res.status(500).send({
         message: "Could not delete Tutorial with id=" + id,
+      });
+    });
+};
+
+//get only distinct values of multiple columns
+exports.distinct = (req, res) => {
+  // Assuming 'columns' is an array of column names you want to retrieve distinct values for
+  const distinctValues = {};
+  const columns = req.query.column;
+
+  const distinctPromises = columns.map((column) => {
+    return Tutorial.findAll({
+      attributes: [
+        [
+          Tutorial.sequelize.fn("DISTINCT", Tutorial.sequelize.col(column)),
+          column,
+        ],
+      ],
+      raw: true,
+    }).then((results) => {
+      distinctValues[column] = results.map((result) => result[column]);
+    });
+  });
+
+  Promise.all(distinctPromises)
+    .then(() => {
+      res.send(distinctValues);
+    })
+    .catch((error) => {
+      res.status(500).send({
+        message: "Could find distinct values",
       });
     });
 };

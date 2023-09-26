@@ -14,11 +14,17 @@ module.exports = (app) => {
   //   );
   //   next();
   // });
+  //get distinct
   router.get(
-    "/files",
+    "/distinct",
     [authJwt.verifyToken, authJwt.isModeratorOrAdmin],
-    excelController.getListFiles
+    tutorials.distinct
   );
+  //  router.get(
+  //     "/files",
+  //     [authJwt.verifyToken, authJwt.isModeratorOrAdmin],
+  //     excelController.getListFiles
+  //   );
   // Create a new Tutorial
   router.post(
     "/upload",

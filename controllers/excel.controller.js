@@ -1,7 +1,6 @@
 const db = require("../models");
 const Tutorial = db.tutorials;
 const citiesLatLongjson = require("../cities_of_turkey.json");
-const fs = require("fs");
 const readXlsxFile = require("read-excel-file/node");
 const utmObj = require("utm-latlng");
 const centerofmass = require("@turf/center-of-mass");
@@ -151,25 +150,27 @@ const importData = (element, user) => {
     }
   });
   // data["editorname"] = this.$store.state.auth.user.username;
-
-  if (
-    typeof data["zone"] !== "string" &&
-    (data["zone"] > 39 || data["zone"] < 35)
-  ) {
-    throw new Error("Zone bilgisini kontrol ediniz!");
-  }
-  if (typeof data["zone"] === "string" && data["zone"].includes(",")) {
-    data["zone"] = data["zone"].split(",").map(Number);
-  }
+  data["zone"] = data["zone"].split(",").map(Number);
+  data["zone"] = data["zone"].map((zone) => {
+    if (zone > 39 || zone < 35) {
+      throw new Error("Zone bilgisini kontrol ediniz!");
+    }
+    return zone;
+  });
 
   var latlon = null;
   var dummyCity = null;
   var thisCity = null;
-  //find il in citiesLatLongjson and get lat and lon
-  var findCity = citiesLatLongjson.find((item) => item.il === data["il"]);
 
-  if (findCity !== null && findCity !== undefined) {
-    if (data["il"] !== null && data["il"] !== undefined) {
+  if (data["il"] === null || data["il"] === undefined) {
+    throw new Error("İl alanını kontrol ediniz.");
+  } else {
+    if (
+      data["calisma_amaci"] !==
+        "TÜRKİYE GENELİ HAVADAN JEOFİZİK ARAŞTIRMALARI" &&
+      data["il"] !== null &&
+      data["il"] !== undefined
+    ) {
       if (data["il"].includes(",")) {
         dummyCity = data["il"].split(",")[0];
         thisCity = citiesLatLongjson.filter(
@@ -183,16 +184,18 @@ const importData = (element, user) => {
       }
       data["lat"] = parseFloat(thisCity.longitude);
       data["lon"] = parseFloat(thisCity.latitude);
+    } else if (
+      data["a_1"] === null &&
+      data["a_2"] === null &&
+      data["a_3"] === null &&
+      data["a_4"] === null
+    ) {
+      //throw error to async upload function
+      throw new Error("İl alanını kontrol ediniz.");
     }
-  } else {
-    //throw error to async upload function
-    throw new Error("İl alanını kontrol ediniz.");
   }
 
-  if (
-    (data["x"] !== null || data["x"] !== 0) &&
-    (data["y"] !== null || data["y"] !== 0)
-  ) {
+  if (data["x"] !== null && data["y"] !== null) {
     latlon = converter(data["x"], data["y"], data["zone"], data["datum"]);
     data["lat"] = latlon.lng;
     data["lon"] = latlon.lat;
@@ -207,13 +210,13 @@ const importData = (element, user) => {
     var polyLineStart = converter(
       data["profil_baslangic_x"],
       data["profil_baslangic_y"],
-      data["zone"],
+      data["zone"].length > 1 ? data["zone"][0] : data["zone"][0],
       data["datum"]
     );
     var polyLineEnd = converter(
       data["profil_bitis_x"],
       data["profil_bitis_y"],
-      data["zone"],
+      data["zone"].length > 1 ? data["zone"][1] : data["zone"][0],
       data["datum"]
     );
     /*
@@ -275,7 +278,7 @@ const importData = (element, user) => {
       var cornerPoint = converter(
         x,
         y,
-        data["zone"].length > 1 ? data["zone"][i] : data["zone"],
+        data["zone"].length > 1 ? data["zone"][i] : data["zone"][0],
         data["datum"]
       );
       coordinates.push([cornerPoint.lng, cornerPoint.lat]);
@@ -283,7 +286,7 @@ const importData = (element, user) => {
     var close = converter(
       parseFloat(corners[0].split(",")[0]),
       parseFloat(corners[0].split(",")[1]),
-      data["zone"].length > 1 ? data["zone"][0] : data["zone"],
+      data["zone"].length > 1 ? data["zone"][0] : data["zone"][0],
       data["datum"]
     );
     coordinates.push([parseFloat(close.lng), parseFloat(close.lat)]);
@@ -438,10 +441,14 @@ const replaceVal = (value) => {
 
 const converter = (x, y, zone, datum) => {
   if (
-    (x !== null || x !== undefined) &&
-    (y !== null || y !== undefined) &&
-    (zone !== null || zone !== undefined) &&
-    (datum !== null || datum !== undefined)
+    x !== null &&
+    x !== undefined &&
+    y !== null &&
+    y !== undefined &&
+    zone !== null &&
+    zone !== undefined &&
+    datum !== null &&
+    datum !== undefined
   ) {
     var utm = null;
     if (datum === "WGS_84") {
@@ -459,45 +466,6 @@ const converter = (x, y, zone, datum) => {
   }
 };
 
-const getListFiles = (req, res) => {
-  const directoryPath = __basedir + "/app/uploads/";
-
-  fs.readdir(directoryPath, function (err, files) {
-    if (err) {
-      res.status(500).send({
-        message: "Unable to scan files!",
-      });
-    }
-
-    let fileInfos = [];
-    if (files) {
-      files.forEach((file) => {
-        fileInfos.push({
-          name: file,
-          url: baseUrl + file,
-        });
-      });
-    }
-
-    res.status(200).send(fileInfos);
-  });
-};
-
-const download = (req, res) => {
-  const fileName = req.params.name;
-  const directoryPath = __basedir + "/app/uploads/";
-
-  res.download(directoryPath + fileName, fileName, (err) => {
-    if (err) {
-      res.status(500).send({
-        message: "Could not download the file. " + err,
-      });
-    }
-  });
-};
-
 module.exports = {
   upload,
-  getListFiles,
-  download,
 };
