@@ -7,6 +7,8 @@ const compression = require("compression");
 let secureEnv = require("secure-env");
 global.__basedir = __dirname + "/..";
 global.env = secureEnv({ secret: "mySecretPassword" });
+const cluster = require("cluster");
+const os = require("os");
 
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
@@ -55,69 +57,80 @@ app.use(cookieParser());
 app.use(helmet());
 app.use(csrfProtection);
 
-app.get("/api/getcsrftoken", csrfProtection, function (req, res) {
-  return res.json({ csrfToken: req.csrfToken() });
-});
+if (cluster.isMaster) {
+  const numCPUs = os.cpus().length;
 
-require(__dirname + "/routes/tutorial.routes")(app);
-require(__dirname + "/routes/auth.routes")(app);
-require(__dirname + "/routes/user.routes")(app);
-require(__dirname + "/routes/rapor.routes")(app);
-
-db.sequelize.sync();
-// db.sequelize.sync({force: true}).then(() => {
-//   console.log('Drop and Resync Database with { force: true }');
-//   initial();
-// });
-
-app.get("/", function (req, res) {
-  res.sendFile(path + "index.html");
-});
-
-app.get("/api/getGeoJson:val", function (req, res) {
-  res.setHeader("Content-Type", "application/json; charset=utf-8");
-  val = req.params.val;
-  if (val == 0) {
-    fs.createReadStream(__dirname + "/tr-cities-utf8.geojson").pipe(res);
-  }
-  if (val == 1) {
-    fs.createReadStream(__dirname + "/tr_ilce.geojson").pipe(res);
-  }
-  if (val == 25) {
-    fs.createReadStream(__dirname + "/pafta25000.geojson").pipe(res);
+  // Fork workers equal to the number of CPUs
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
   }
 
-  if (val == 100) {
-    fs.createReadStream(__dirname + "/pafta100000.geojson").pipe(res);
-  }
-  if (val == 500) {
-    fs.createReadStream(__dirname + "/pafta500000.geojson").pipe(res);
-  }
-});
+  cluster.on("exit", (worker, code, signal) => {
+    console.log(`Worker ${worker.process.pid} died`);
+    // If a worker dies, fork a new one to replace it
+  });
+  app.get("/api/getcsrftoken", csrfProtection, function (req, res) {
+    return res.json({ csrfToken: req.csrfToken() });
+  });
+  require(__dirname + "/routes/tutorial.routes")(app);
+  require(__dirname + "/routes/auth.routes")(app);
+  require(__dirname + "/routes/user.routes")(app);
+  require(__dirname + "/routes/rapor.routes")(app);
+  db.sequelize.sync();
+  // set port, listen for requests
+  const PORT = global.env.PORT || 8080;
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}.`);
+  });
+} else {
+  // db.sequelize.sync({force: true}).then(() => {
+  //   console.log('Drop and Resync Database with { force: true }');
+  //   initial();
+  // });
 
-// set port, listen for requests
-const PORT = global.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
-});
-
-function initial() {
-  Role.create({
-    id: 1,
-    name: "user",
+  app.get("/", function (req, res) {
+    res.sendFile(path + "index.html");
   });
 
-  Role.create({
-    id: 2,
-    name: "moderator",
+  app.get("/api/getGeoJson:val", function (req, res) {
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    val = req.params.val;
+    if (val == 0) {
+      fs.createReadStream(__dirname + "/tr-cities-utf8.geojson").pipe(res);
+    }
+    if (val == 1) {
+      fs.createReadStream(__dirname + "/tr_ilce.geojson").pipe(res);
+    }
+    if (val == 25) {
+      fs.createReadStream(__dirname + "/pafta25000.geojson").pipe(res);
+    }
+
+    if (val == 100) {
+      fs.createReadStream(__dirname + "/pafta100000.geojson").pipe(res);
+    }
+    if (val == 500) {
+      fs.createReadStream(__dirname + "/pafta500000.geojson").pipe(res);
+    }
   });
 
-  Role.create({
-    id: 3,
-    name: "admin",
-  });
-  Role.create({
-    id: 4,
-    name: "guest",
-  });
+  function initial() {
+    Role.create({
+      id: 1,
+      name: "user",
+    });
+
+    Role.create({
+      id: 2,
+      name: "moderator",
+    });
+
+    Role.create({
+      id: 3,
+      name: "admin",
+    });
+    Role.create({
+      id: 4,
+      name: "guest",
+    });
+  }
 }

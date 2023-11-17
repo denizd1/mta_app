@@ -8,18 +8,34 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
 exports.signup = (req, res) => {
+  const { username, email, password, roles } = req.body;
+
+  if (!username || !email || !password) {
+    return res
+      .status(400)
+      .send({ message: "Kullanıcı adı, email, ve şifre zorunludur." });
+  }
+
+  // Validate email format
+  const emailPattern = /[\w-.]+@([mta.gov]+\.+[tr]{2})/;
+  if (!emailPattern.test(email)) {
+    return res
+      .status(400)
+      .send({ message: "Lütfen geçerli bir email adresi giriniz." });
+  }
+
   // Save User to Database
   User.create({
-    username: req.body.username,
-    email: req.body.email,
-    password: bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10)),
+    username,
+    email,
+    password: bcrypt.hashSync(password, bcrypt.genSaltSync(10)),
   })
     .then((user) => {
       if (req.body.roles) {
         Role.findAll({
           where: {
             name: {
-              [Op.or]: req.body.roles,
+              [Op.or]: roles,
             },
           },
         }).then((roles) => {
@@ -40,9 +56,10 @@ exports.signup = (req, res) => {
 };
 
 exports.signin = (req, res) => {
+  const { username, password } = req.body;
   User.findOne({
     where: {
-      username: req.body.username,
+      username,
     },
   })
     .then(async (user) => {
@@ -50,10 +67,7 @@ exports.signin = (req, res) => {
         return res.status(404).send({ message: "Kullanıcı bulunamadı" });
       }
 
-      const passwordIsValid = bcrypt.compareSync(
-        req.body.password,
-        user.password
-      );
+      const passwordIsValid = bcrypt.compareSync(password, user.password);
 
       if (!passwordIsValid) {
         return res.status(401).send({

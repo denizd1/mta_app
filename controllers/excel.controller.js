@@ -149,8 +149,18 @@ const importData = (element, user) => {
       data[fileHeader[index]] = val; // key - value
     }
   });
-  // data["editorname"] = this.$store.state.auth.user.username;
-  data["zone"] = data["zone"].split(",").map(Number);
+  //if data["zone"] contains "," then split and convert to number, else convert to number
+  if (data["zone"] === null || data["zone"] === undefined) {
+    throw new Error("Zone bilgisini kontrol ediniz!");
+  }
+  if (typeof data["zone"] === "string" && data["zone"].includes(",")) {
+    console.log(data["zone"]);
+
+    data["zone"] = data["zone"].split(",").map(Number);
+  } else {
+    data["zone"] = [parseInt(data["zone"])];
+  }
+
   data["zone"] = data["zone"].map((zone) => {
     if (zone > 39 || zone < 35) {
       throw new Error("Zone bilgisini kontrol ediniz!");
