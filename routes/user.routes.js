@@ -14,6 +14,8 @@ module.exports = function (app) {
     [authJwt.verifyToken, authJwt.isAdmin],
     controller.updateUser
   );
+  router.put("/forgotPassword", controller.forgotPassword);
+  router.put("/resetPassword", controller.resetPassword);
 
   app.use("/api/users", router);
 };

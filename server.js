@@ -76,6 +76,31 @@ if (cluster.isMaster) {
   require(__dirname + "/routes/auth.routes")(app);
   require(__dirname + "/routes/user.routes")(app);
   require(__dirname + "/routes/rapor.routes")(app);
+
+  app.get("/api/getGeoJson:val", function (req, res) {
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    val = req.params.val;
+    if (val == 0) {
+      fs.createReadStream(__dirname + "/tr-cities-utf8.geojson").pipe(res);
+    }
+    if (val == 1) {
+      fs.createReadStream(__dirname + "/tr_ilce.geojson").pipe(res);
+    }
+    if (val == 2) {
+      fs.createReadStream(__dirname + "/gem_active_faults.geojson").pipe(res);
+    }
+    if (val == 25) {
+      fs.createReadStream(__dirname + "/pafta25000.geojson").pipe(res);
+    }
+
+    if (val == 100) {
+      fs.createReadStream(__dirname + "/pafta100000.geojson").pipe(res);
+    }
+    if (val == 500) {
+      fs.createReadStream(__dirname + "/pafta500000.geojson").pipe(res);
+    }
+  });
+
   db.sequelize.sync();
   // set port, listen for requests
   const PORT = global.env.PORT || 8080;
@@ -90,27 +115,6 @@ if (cluster.isMaster) {
 
   app.get("/", function (req, res) {
     res.sendFile(path + "index.html");
-  });
-
-  app.get("/api/getGeoJson:val", function (req, res) {
-    res.setHeader("Content-Type", "application/json; charset=utf-8");
-    val = req.params.val;
-    if (val == 0) {
-      fs.createReadStream(__dirname + "/tr-cities-utf8.geojson").pipe(res);
-    }
-    if (val == 1) {
-      fs.createReadStream(__dirname + "/tr_ilce.geojson").pipe(res);
-    }
-    if (val == 25) {
-      fs.createReadStream(__dirname + "/pafta25000.geojson").pipe(res);
-    }
-
-    if (val == 100) {
-      fs.createReadStream(__dirname + "/pafta100000.geojson").pipe(res);
-    }
-    if (val == 500) {
-      fs.createReadStream(__dirname + "/pafta500000.geojson").pipe(res);
-    }
   });
 
   function initial() {

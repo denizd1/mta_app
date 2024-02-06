@@ -17,7 +17,10 @@
   "author": "Deniz Donmez",
   "license": "ISC",
   "dependencies": {
+    "@turf/boolean-intersects": "^6.5.0",
+    "@turf/boolean-point-in-polygon": "^6.5.0",
     "@turf/center-of-mass": "^6.5.0",
+    "@turf/intersect": "^6.5.0",
     "@vee-validate/i18n": "^4.5.10",
     "axios": "^0.24.0",
     "bcryptjs": "^2.4.3",
@@ -37,6 +40,7 @@
     "helmet": "^5.0.2",
     "jsonwebtoken": "^8.5.1",
     "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.8",
     "pg": "^8.7.1",
     "pg-hstore": "^2.3.4",
     "read-excel-file": "^5.5.3",
@@ -44,6 +48,9 @@
     "secure-env": "^1.2.0",
     "sequelize": "^6.25.3",
     "turf": "^3.0.14",
+    "turf-linestring": "^1.0.2",
+    "turf-multipolygon": "^1.0.1",
+    "turf-polygon": "^1.0.3",
     "utm-latlng": "^1.0.7",
     "v8-compile-cache": "^2.3.0",
     "xlsx": "^0.17.4"

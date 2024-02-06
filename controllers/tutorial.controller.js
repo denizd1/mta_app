@@ -11,7 +11,7 @@ const ExcelJS = require("exceljs");
 const geojsonobj = require("geojson");
 
 //read tr-cities-utf8.geojson geojson file
-const geojson = JSON.parse(fs.readFileSync("tr-cities-utf8.geojson"));
+const illergeojson = JSON.parse(fs.readFileSync("tr-cities-utf8.geojson"));
 const ilceler = JSON.parse(fs.readFileSync("tr_ilce.geojson"));
 
 const getPagination = (page, size) => {
@@ -51,7 +51,7 @@ exports.findAll = (req, res) => {
   const { limit, offset } = getPagination(page, size);
   var filters = {};
   if (il !== null && il !== undefined) {
-    var ilArray = geojson.features.filter(
+    var ilArray = illergeojson.features.filter(
       (item) => item.properties.name.toLowerCase() == il.toLowerCase()
     );
   }
@@ -312,7 +312,6 @@ exports.findAll = (req, res) => {
 };
 
 exports.findAllgetAll = (req, res) => {
-  console.log(req.query);
   let {
     il,
     ilce,
@@ -330,7 +329,7 @@ exports.findAllgetAll = (req, res) => {
   } = req.query;
   //find il in geojson
   if (il !== null && il !== undefined) {
-    var ilArray = geojson.features.filter(
+    var ilArray = illergeojson.features.filter(
       (item) => item.properties.name.toLowerCase() == il.toLowerCase()
     );
   }
@@ -384,176 +383,176 @@ exports.findAllgetAll = (req, res) => {
     fields.forEach((item) => (filters[item] = { [Op.iLike]: `%${il}%` }));
     condition = il ? { [Op.or]: filters } : null;
   }
+  if (requestFlag !== "excel") {
+    Tutorial.findAll({
+      where:
+        locationCondition != null
+          ? [
+              locationCondition,
+              ilce ? { ilce: { [Op.iLike]: `%${ilce}%` } } : null,
+              yontem
+                ? {
+                    [Op.or]: [
+                      { yontem: { [Op.or]: yontem } },
+                      { alt_yontem: { [Op.or]: yontem } },
+                    ],
+                  }
+                : null,
+              calisma_amaci !== null && calisma_amaci !== undefined
+                ? //check if array or not
 
-  Tutorial.findAll({
-    where:
-      locationCondition != null
-        ? [
-            locationCondition,
-            ilce ? { ilce: { [Op.iLike]: `%${ilce}%` } } : null,
-            yontem
-              ? {
-                  [Op.or]: [
-                    { yontem: { [Op.or]: yontem } },
-                    { alt_yontem: { [Op.or]: yontem } },
-                  ],
-                }
-              : null,
-            calisma_amaci !== null && calisma_amaci !== undefined
-              ? //check if array or not
+                  {
+                    calisma_amaci: Array.isArray(calisma_amaci)
+                      ? {
+                          [Op.or]: calisma_amaci,
+                        }
+                      : { [Op.iLike]: `%${calisma_amaci}%` },
+                  }
+                : null,
+              calisma_tarihi !== null && calisma_tarihi !== undefined
+                ? {
+                    calisma_tarihi: Array.isArray(calisma_tarihi)
+                      ? {
+                          [Op.or]: calisma_tarihi.map((value) => ({
+                            [Op.iRegexp]: `.*${value}.*`,
+                          })),
+                        }
+                      : {
+                          [Op.iRegexp]: `.*${calisma_tarihi}.*`,
+                        },
+                  }
+                : null,
 
-                {
-                  calisma_amaci: Array.isArray(calisma_amaci)
-                    ? {
-                        [Op.or]: calisma_amaci,
-                      }
-                    : { [Op.iLike]: `%${calisma_amaci}%` },
-                }
-              : null,
-            calisma_tarihi !== null && calisma_tarihi !== undefined
-              ? {
-                  calisma_tarihi: Array.isArray(calisma_tarihi)
-                    ? {
-                        [Op.or]: calisma_tarihi.map((value) => ({
-                          [Op.iRegexp]: `.*${value}.*`,
-                        })),
-                      }
-                    : {
-                        [Op.iRegexp]: `.*${calisma_tarihi}.*`,
-                      },
-                }
-              : null,
+              proje_kodu !== null && proje_kodu !== undefined
+                ? {
+                    proje_kodu: Array.isArray(proje_kodu)
+                      ? { [Op.or]: proje_kodu }
+                      : { [Op.iLike]: `%${proje_kodu}%` },
+                  }
+                : null,
+              kuyu_arsiv_no !== null && kuyu_arsiv_no !== undefined
+                ? {
+                    kuyu_arsiv_no: Array.isArray(kuyu_arsiv_no)
+                      ? { [Op.or]: kuyu_arsiv_no }
+                      : { [Op.iLike]: `%${kuyu_arsiv_no}%` },
+                  }
+                : null,
+              jeofizik_arsiv_no !== null && jeofizik_arsiv_no !== undefined
+                ? {
+                    jeofizik_arsiv_no: Array.isArray(jeofizik_arsiv_no)
+                      ? { [Op.or]: jeofizik_arsiv_no }
+                      : { [Op.iLike]: `%${jeofizik_arsiv_no}%` },
+                  }
+                : null,
+              derleme_no !== null && derleme_no !== undefined
+                ? {
+                    derleme_no: Array.isArray(derleme_no)
+                      ? { [Op.or]: derleme_no }
+                      : { [Op.iLike]: `%${derleme_no}%` },
+                  }
+                : null,
+              cd_no != null && cd_no !== undefined
+                ? {
+                    cd_no: Array.isArray(cd_no)
+                      ? { [Op.or]: cd_no }
+                      : { [Op.iLike]: `%${cd_no}%` },
+                  }
+                : null,
+              //published will be true if the userStatus is 'user'. if not, it can be false or true.
+              userStatus == "user"
+                ? { published: true }
+                : { published: { [Op.or]: [true, false] } },
+            ]
+          : Object.assign(
+              {},
+              condition,
+              ilce ? { ilce: { [Op.iLike]: `%${ilce}%` } } : null,
+              yontem
+                ? {
+                    [Op.or]: [
+                      { yontem: { [Op.or]: yontem } },
+                      { alt_yontem: { [Op.or]: yontem } },
+                    ],
+                  }
+                : null,
+              alt_yontem
+                ? {
+                    [Op.or]: [
+                      { yontem: { [Op.or]: alt_yontem } },
+                      { alt_yontem: { [Op.or]: alt_yontem } },
+                    ],
+                  }
+                : null,
+              calisma_amaci !== null && calisma_amaci !== undefined
+                ? //check if array or not
 
-            proje_kodu !== null && proje_kodu !== undefined
-              ? {
-                  proje_kodu: Array.isArray(proje_kodu)
-                    ? { [Op.or]: proje_kodu }
-                    : { [Op.iLike]: `%${proje_kodu}%` },
-                }
-              : null,
-            kuyu_arsiv_no !== null && kuyu_arsiv_no !== undefined
-              ? {
-                  kuyu_arsiv_no: Array.isArray(kuyu_arsiv_no)
-                    ? { [Op.or]: kuyu_arsiv_no }
-                    : { [Op.iLike]: `%${kuyu_arsiv_no}%` },
-                }
-              : null,
-            jeofizik_arsiv_no !== null && jeofizik_arsiv_no !== undefined
-              ? {
-                  jeofizik_arsiv_no: Array.isArray(jeofizik_arsiv_no)
-                    ? { [Op.or]: jeofizik_arsiv_no }
-                    : { [Op.iLike]: `%${jeofizik_arsiv_no}%` },
-                }
-              : null,
-            derleme_no !== null && derleme_no !== undefined
-              ? {
-                  derleme_no: Array.isArray(derleme_no)
-                    ? { [Op.or]: derleme_no }
-                    : { [Op.iLike]: `%${derleme_no}%` },
-                }
-              : null,
-            cd_no != null && cd_no !== undefined
-              ? {
-                  cd_no: Array.isArray(cd_no)
-                    ? { [Op.or]: cd_no }
-                    : { [Op.iLike]: `%${cd_no}%` },
-                }
-              : null,
-            //published will be true if the userStatus is 'user'. if not, it can be false or true.
-            userStatus == "user"
-              ? { published: true }
-              : { published: { [Op.or]: [true, false] } },
-          ]
-        : Object.assign(
-            {},
-            condition,
-            ilce ? { ilce: { [Op.iLike]: `%${ilce}%` } } : null,
-            yontem
-              ? {
-                  [Op.or]: [
-                    { yontem: { [Op.or]: yontem } },
-                    { alt_yontem: { [Op.or]: yontem } },
-                  ],
-                }
-              : null,
-            alt_yontem
-              ? {
-                  [Op.or]: [
-                    { yontem: { [Op.or]: alt_yontem } },
-                    { alt_yontem: { [Op.or]: alt_yontem } },
-                  ],
-                }
-              : null,
-            calisma_amaci !== null && calisma_amaci !== undefined
-              ? //check if array or not
+                  {
+                    calisma_amaci: Array.isArray(calisma_amaci)
+                      ? {
+                          [Op.or]: calisma_amaci,
+                        }
+                      : { [Op.iLike]: `%${calisma_amaci}%` },
+                  }
+                : null,
+              calisma_tarihi !== null && calisma_tarihi !== undefined
+                ? {
+                    calisma_tarihi: Array.isArray(calisma_tarihi)
+                      ? {
+                          [Op.or]: calisma_tarihi.map((value) => ({
+                            [Op.iRegexp]: `.*${value}.*`,
+                          })),
+                        }
+                      : {
+                          [Op.iRegexp]: `.*${calisma_tarihi}.*`,
+                        },
+                  }
+                : null,
 
-                {
-                  calisma_amaci: Array.isArray(calisma_amaci)
-                    ? {
-                        [Op.or]: calisma_amaci,
-                      }
-                    : { [Op.iLike]: `%${calisma_amaci}%` },
-                }
-              : null,
-            calisma_tarihi !== null && calisma_tarihi !== undefined
-              ? {
-                  calisma_tarihi: Array.isArray(calisma_tarihi)
-                    ? {
-                        [Op.or]: calisma_tarihi.map((value) => ({
-                          [Op.iRegexp]: `.*${value}.*`,
-                        })),
-                      }
-                    : {
-                        [Op.iRegexp]: `.*${calisma_tarihi}.*`,
-                      },
-                }
-              : null,
+              proje_kodu !== null && proje_kodu !== undefined
+                ? {
+                    proje_kodu: Array.isArray(proje_kodu)
+                      ? { [Op.or]: proje_kodu }
+                      : { [Op.iLike]: `%${proje_kodu}%` },
+                  }
+                : null,
+              kuyu_arsiv_no !== null && kuyu_arsiv_no !== undefined
+                ? {
+                    kuyu_arsiv_no: Array.isArray(kuyu_arsiv_no)
+                      ? { [Op.or]: kuyu_arsiv_no }
+                      : { [Op.iLike]: `%${kuyu_arsiv_no}%` },
+                  }
+                : null,
+              jeofizik_arsiv_no !== null && jeofizik_arsiv_no !== undefined
+                ? {
+                    jeofizik_arsiv_no: Array.isArray(jeofizik_arsiv_no)
+                      ? { [Op.or]: jeofizik_arsiv_no }
+                      : { [Op.iLike]: `%${jeofizik_arsiv_no}%` },
+                  }
+                : null,
+              derleme_no !== null && derleme_no !== undefined
+                ? {
+                    derleme_no: Array.isArray(derleme_no)
+                      ? { [Op.or]: derleme_no }
+                      : { [Op.iLike]: `%${derleme_no}%` },
+                  }
+                : null,
+              cd_no != null && cd_no !== undefined
+                ? {
+                    cd_no: Array.isArray(cd_no)
+                      ? { [Op.or]: cd_no }
+                      : { [Op.iLike]: `%${cd_no}%` },
+                  }
+                : null,
 
-            proje_kodu !== null && proje_kodu !== undefined
-              ? {
-                  proje_kodu: Array.isArray(proje_kodu)
-                    ? { [Op.or]: proje_kodu }
-                    : { [Op.iLike]: `%${proje_kodu}%` },
-                }
-              : null,
-            kuyu_arsiv_no !== null && kuyu_arsiv_no !== undefined
-              ? {
-                  kuyu_arsiv_no: Array.isArray(kuyu_arsiv_no)
-                    ? { [Op.or]: kuyu_arsiv_no }
-                    : { [Op.iLike]: `%${kuyu_arsiv_no}%` },
-                }
-              : null,
-            jeofizik_arsiv_no !== null && jeofizik_arsiv_no !== undefined
-              ? {
-                  jeofizik_arsiv_no: Array.isArray(jeofizik_arsiv_no)
-                    ? { [Op.or]: jeofizik_arsiv_no }
-                    : { [Op.iLike]: `%${jeofizik_arsiv_no}%` },
-                }
-              : null,
-            derleme_no !== null && derleme_no !== undefined
-              ? {
-                  derleme_no: Array.isArray(derleme_no)
-                    ? { [Op.or]: derleme_no }
-                    : { [Op.iLike]: `%${derleme_no}%` },
-                }
-              : null,
-            cd_no != null && cd_no !== undefined
-              ? {
-                  cd_no: Array.isArray(cd_no)
-                    ? { [Op.or]: cd_no }
-                    : { [Op.iLike]: `%${cd_no}%` },
-                }
-              : null,
+              //published will be true if the userStatus is 'user'. if not, it can be false or true.
+              userStatus == "user"
+                ? { published: true }
+                : { published: { [Op.or]: [true, false] } }
+            ),
+    })
+      .then((data) => {
+        var resdata = null;
 
-            //published will be true if the userStatus is 'user'. if not, it can be false or true.
-            userStatus == "user"
-              ? { published: true }
-              : { published: { [Op.or]: [true, false] } }
-          ),
-  })
-    .then((data) => {
-      var resdata = null;
-      if (requestFlag !== "excel") {
         //need to create line for geojson if profil_baslangic_x and profil_baslangic_y is not null
         data.forEach((item) => {
           if (
@@ -634,71 +633,263 @@ exports.findAllgetAll = (req, res) => {
 
         resdata = { resPoints: resPoints, resLines: resLines };
         res.send(resdata);
-      } else {
-        var arr = [];
-        data.forEach((item) => {
-          delete item.dataValues.id;
-          delete item.dataValues.createdAt;
-          delete item.dataValues.updatedAt;
-          delete item.dataValues.editorname;
-          delete item.dataValues.published;
-          delete item.dataValues.lat;
-          delete item.dataValues.lon;
-          arr.push(item.dataValues);
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while retrieving tutorials.",
         });
-        const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet("Sheet 1");
-        // Generate columns dynamically based on the keys in the first data object
-        const firstDataObject = arr[0];
-        const columns = Object.keys(firstDataObject).map((key) => ({
-          header: key,
-          key,
-          width: 20, // You can set a default width or adjust it as needed
-        }));
-
-        // Set the columns in the worksheet
-        worksheet.columns = columns;
-        // Convert 'arr' to an array of arrays where each inner array represents a row
-        const rows = arr.map((row) => Object.values(row));
-
-        // Add the data rows in a batch
-        worksheet.addRows(rows);
-
-        // Create a write stream to save the XLSX file
-        const stream = fs.createWriteStream("export.xlsx");
-
-        // Write the workbook to the stream
-        workbook.xlsx
-          .write(stream)
-          .then(() => {
-            // Close the write stream
-            stream.end();
-
-            // Now, create a read stream for the saved file and pipe it to the response
-            const readStream = fs.createReadStream("export.xlsx");
-            res.setHeader(
-              "Content-Type",
-              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            );
-            res.setHeader(
-              "Content-Disposition",
-              "attachment; filename=export.xlsx"
-            );
-            readStream.pipe(res);
-          })
-          .catch((error) => {
-            console.error("Error writing XLSX file:", error);
-            res.status(500).send("Internal Server Error");
-          });
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving tutorials.",
       });
-    });
+  } else {
+    const generateExcelFile = async (res) => {
+      const options = {
+        filename: "export.xlsx",
+        useStyles: true,
+        useSharedStrings: true,
+      };
+      const workbook = new ExcelJS.stream.xlsx.WorkbookWriter(options);
+      const worksheet = workbook.addWorksheet("Sheet 1");
+
+      // Add headers
+      // const headers = ["Column1", "Column2", "Column3"]; // Replace with your actual column names
+      // worksheet.addRow(headers);
+      // Add headers
+      const queryOptions = {
+        raw: true,
+        attributes: {
+          exclude: [
+            "id",
+            "createdAt",
+            "updatedAt",
+            "editorname",
+            "published",
+            "lat",
+            "lon",
+          ],
+        },
+        where:
+          locationCondition != null
+            ? [
+                locationCondition,
+                ilce ? { ilce: { [Op.iLike]: `%${ilce}%` } } : null,
+                yontem
+                  ? {
+                      [Op.or]: [
+                        { yontem: { [Op.or]: yontem } },
+                        { alt_yontem: { [Op.or]: yontem } },
+                      ],
+                    }
+                  : null,
+                calisma_amaci !== null && calisma_amaci !== undefined
+                  ? //check if array or not
+
+                    {
+                      calisma_amaci: Array.isArray(calisma_amaci)
+                        ? {
+                            [Op.or]: calisma_amaci,
+                          }
+                        : { [Op.iLike]: `%${calisma_amaci}%` },
+                    }
+                  : null,
+                calisma_tarihi !== null && calisma_tarihi !== undefined
+                  ? {
+                      calisma_tarihi: Array.isArray(calisma_tarihi)
+                        ? {
+                            [Op.or]: calisma_tarihi.map((value) => ({
+                              [Op.iRegexp]: `.*${value}.*`,
+                            })),
+                          }
+                        : {
+                            [Op.iRegexp]: `.*${calisma_tarihi}.*`,
+                          },
+                    }
+                  : null,
+
+                proje_kodu !== null && proje_kodu !== undefined
+                  ? {
+                      proje_kodu: Array.isArray(proje_kodu)
+                        ? { [Op.or]: proje_kodu }
+                        : { [Op.iLike]: `%${proje_kodu}%` },
+                    }
+                  : null,
+                kuyu_arsiv_no !== null && kuyu_arsiv_no !== undefined
+                  ? {
+                      kuyu_arsiv_no: Array.isArray(kuyu_arsiv_no)
+                        ? { [Op.or]: kuyu_arsiv_no }
+                        : { [Op.iLike]: `%${kuyu_arsiv_no}%` },
+                    }
+                  : null,
+                jeofizik_arsiv_no !== null && jeofizik_arsiv_no !== undefined
+                  ? {
+                      jeofizik_arsiv_no: Array.isArray(jeofizik_arsiv_no)
+                        ? { [Op.or]: jeofizik_arsiv_no }
+                        : { [Op.iLike]: `%${jeofizik_arsiv_no}%` },
+                    }
+                  : null,
+                derleme_no !== null && derleme_no !== undefined
+                  ? {
+                      derleme_no: Array.isArray(derleme_no)
+                        ? { [Op.or]: derleme_no }
+                        : { [Op.iLike]: `%${derleme_no}%` },
+                    }
+                  : null,
+                cd_no != null && cd_no !== undefined
+                  ? {
+                      cd_no: Array.isArray(cd_no)
+                        ? { [Op.or]: cd_no }
+                        : { [Op.iLike]: `%${cd_no}%` },
+                    }
+                  : null,
+                //published will be true if the userStatus is 'user'. if not, it can be false or true.
+                userStatus == "user"
+                  ? { published: true }
+                  : { published: { [Op.or]: [true, false] } },
+              ]
+            : Object.assign(
+                {},
+                condition,
+                ilce ? { ilce: { [Op.iLike]: `%${ilce}%` } } : null,
+                yontem
+                  ? {
+                      [Op.or]: [
+                        { yontem: { [Op.or]: yontem } },
+                        { alt_yontem: { [Op.or]: yontem } },
+                      ],
+                    }
+                  : null,
+                alt_yontem
+                  ? {
+                      [Op.or]: [
+                        { yontem: { [Op.or]: alt_yontem } },
+                        { alt_yontem: { [Op.or]: alt_yontem } },
+                      ],
+                    }
+                  : null,
+                calisma_amaci !== null && calisma_amaci !== undefined
+                  ? //check if array or not
+
+                    {
+                      calisma_amaci: Array.isArray(calisma_amaci)
+                        ? {
+                            [Op.or]: calisma_amaci,
+                          }
+                        : { [Op.iLike]: `%${calisma_amaci}%` },
+                    }
+                  : null,
+                calisma_tarihi !== null && calisma_tarihi !== undefined
+                  ? {
+                      calisma_tarihi: Array.isArray(calisma_tarihi)
+                        ? {
+                            [Op.or]: calisma_tarihi.map((value) => ({
+                              [Op.iRegexp]: `.*${value}.*`,
+                            })),
+                          }
+                        : {
+                            [Op.iRegexp]: `.*${calisma_tarihi}.*`,
+                          },
+                    }
+                  : null,
+
+                proje_kodu !== null && proje_kodu !== undefined
+                  ? {
+                      proje_kodu: Array.isArray(proje_kodu)
+                        ? { [Op.or]: proje_kodu }
+                        : { [Op.iLike]: `%${proje_kodu}%` },
+                    }
+                  : null,
+                kuyu_arsiv_no !== null && kuyu_arsiv_no !== undefined
+                  ? {
+                      kuyu_arsiv_no: Array.isArray(kuyu_arsiv_no)
+                        ? { [Op.or]: kuyu_arsiv_no }
+                        : { [Op.iLike]: `%${kuyu_arsiv_no}%` },
+                    }
+                  : null,
+                jeofizik_arsiv_no !== null && jeofizik_arsiv_no !== undefined
+                  ? {
+                      jeofizik_arsiv_no: Array.isArray(jeofizik_arsiv_no)
+                        ? { [Op.or]: jeofizik_arsiv_no }
+                        : { [Op.iLike]: `%${jeofizik_arsiv_no}%` },
+                    }
+                  : null,
+                derleme_no !== null && derleme_no !== undefined
+                  ? {
+                      derleme_no: Array.isArray(derleme_no)
+                        ? { [Op.or]: derleme_no }
+                        : { [Op.iLike]: `%${derleme_no}%` },
+                    }
+                  : null,
+                cd_no != null && cd_no !== undefined
+                  ? {
+                      cd_no: Array.isArray(cd_no)
+                        ? { [Op.or]: cd_no }
+                        : { [Op.iLike]: `%${cd_no}%` },
+                    }
+                  : null,
+
+                //published will be true if the userStatus is 'user'. if not, it can be false or true.
+                userStatus == "user"
+                  ? { published: true }
+                  : { published: { [Op.or]: [true, false] } }
+              ),
+      };
+
+      const totalCount = await Tutorial.count(queryOptions);
+
+      queryOptions.limit = 10000; // Adjust the batch size based on your needs
+      let offset = 0;
+      const fetchAndProcessData = async () => {
+        const rows = await Tutorial.findAll({
+          ...queryOptions,
+          offset,
+        });
+
+        if (offset === 0 && rows.length > 0) {
+          // Extract headers from the first object in the fetched data
+          const headers = Object.keys(rows[0]);
+          // Add headers to the worksheet
+          worksheet.addRow(headers).commit();
+        }
+
+        // Process rows
+        rows.forEach((row) => {
+          worksheet.addRow(Object.values(row)).commit();
+        });
+
+        offset += queryOptions.limit;
+
+        if (offset < totalCount) {
+          // Continue fetching data in batches
+          process.nextTick(fetchAndProcessData);
+        } else {
+          // All data processed, proceed to write the file
+
+          workbook
+            .commit()
+            .then(() => {
+              const readStream = fs.createReadStream("export.xlsx");
+              res.setHeader(
+                "Content-Type",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              );
+              res.setHeader(
+                "Content-Disposition",
+                "attachment; filename=export.xlsx"
+              );
+              readStream.pipe(res);
+            })
+            .catch((error) => {
+              console.error("Error writing XLSX file:", error);
+              res.status(500).send("Internal Server Error");
+            });
+        }
+      };
+
+      // Start fetching and processing data
+      fetchAndProcessData();
+    };
+    generateExcelFile(res);
+  }
 };
 
 //Find all tutorials inside the geojson polygon
@@ -749,85 +940,86 @@ exports.findAllGeo = (req, res) => {
     );
   }
 
-  Tutorial.findAll({
-    where: [
-      locationCondition,
-      yontem
-        ? {
-            [Op.or]: [
-              { yontem: { [Op.or]: yontem } },
-              { alt_yontem: { [Op.or]: yontem } },
-            ],
-          }
-        : null,
-      calisma_amaci !== null && calisma_amaci !== undefined
-        ? //check if array or not
+  if (requestFlag !== "excel") {
+    Tutorial.findAll({
+      where: [
+        locationCondition,
+        yontem
+          ? {
+              [Op.or]: [
+                { yontem: { [Op.or]: yontem } },
+                { alt_yontem: { [Op.or]: yontem } },
+              ],
+            }
+          : null,
+        calisma_amaci !== null && calisma_amaci !== undefined
+          ? //check if array or not
 
-          {
-            calisma_amaci: Array.isArray(calisma_amaci)
-              ? {
-                  [Op.or]: calisma_amaci,
-                }
-              : { [Op.iLike]: `%${calisma_amaci}%` },
-          }
-        : null,
-      calisma_tarihi !== null && calisma_tarihi !== undefined
-        ? {
-            calisma_tarihi: Array.isArray(calisma_tarihi)
-              ? {
-                  [Op.or]: calisma_tarihi.map((value) => ({
-                    [Op.iRegexp]: `.*${value}.*`,
-                  })),
-                }
-              : {
-                  [Op.iRegexp]: `.*${calisma_tarihi}.*`,
-                },
-          }
-        : null,
+            {
+              calisma_amaci: Array.isArray(calisma_amaci)
+                ? {
+                    [Op.or]: calisma_amaci,
+                  }
+                : { [Op.iLike]: `%${calisma_amaci}%` },
+            }
+          : null,
+        calisma_tarihi !== null && calisma_tarihi !== undefined
+          ? {
+              calisma_tarihi: Array.isArray(calisma_tarihi)
+                ? {
+                    [Op.or]: calisma_tarihi.map((value) => ({
+                      [Op.iRegexp]: `.*${value}.*`,
+                    })),
+                  }
+                : {
+                    [Op.iRegexp]: `.*${calisma_tarihi}.*`,
+                  },
+            }
+          : null,
 
-      proje_kodu !== null && proje_kodu !== undefined
-        ? {
-            proje_kodu: Array.isArray(proje_kodu)
-              ? { [Op.or]: proje_kodu }
-              : { [Op.iLike]: `%${proje_kodu}%` },
-          }
-        : null,
-      kuyu_arsiv_no !== null && kuyu_arsiv_no !== undefined
-        ? {
-            kuyu_arsiv_no: Array.isArray(kuyu_arsiv_no)
-              ? { [Op.or]: kuyu_arsiv_no }
-              : { [Op.iLike]: `%${kuyu_arsiv_no}%` },
-          }
-        : null,
-      jeofizik_arsiv_no !== null && jeofizik_arsiv_no !== undefined
-        ? {
-            jeofizik_arsiv_no: Array.isArray(jeofizik_arsiv_no)
-              ? { [Op.or]: jeofizik_arsiv_no }
-              : { [Op.iLike]: `%${jeofizik_arsiv_no}%` },
-          }
-        : null,
-      derleme_no !== null && derleme_no !== undefined
-        ? {
-            derleme_no: Array.isArray(derleme_no)
-              ? { [Op.or]: derleme_no }
-              : { [Op.iLike]: `%${derleme_no}%` },
-          }
-        : null,
-      cd_no != null && cd_no !== undefined
-        ? {
-            cd_no: Array.isArray(cd_no)
-              ? { [Op.or]: cd_no }
-              : { [Op.iLike]: `%${cd_no}%` },
-          }
-        : null,
-      userStatus === "user"
-        ? { published: true }
-        : { published: { [Op.or]: [true, false] } },
-    ],
-  })
-    .then((data) => {
-      var resdata = null;
-      if (requestFlag !== "excel") {
+        proje_kodu !== null && proje_kodu !== undefined
+          ? {
+              proje_kodu: Array.isArray(proje_kodu)
+                ? { [Op.or]: proje_kodu }
+                : { [Op.iLike]: `%${proje_kodu}%` },
+            }
+          : null,
+        kuyu_arsiv_no !== null && kuyu_arsiv_no !== undefined
+          ? {
+              kuyu_arsiv_no: Array.isArray(kuyu_arsiv_no)
+                ? { [Op.or]: kuyu_arsiv_no }
+                : { [Op.iLike]: `%${kuyu_arsiv_no}%` },
+            }
+          : null,
+        jeofizik_arsiv_no !== null && jeofizik_arsiv_no !== undefined
+          ? {
+              jeofizik_arsiv_no: Array.isArray(jeofizik_arsiv_no)
+                ? { [Op.or]: jeofizik_arsiv_no }
+                : { [Op.iLike]: `%${jeofizik_arsiv_no}%` },
+            }
+          : null,
+        derleme_no !== null && derleme_no !== undefined
+          ? {
+              derleme_no: Array.isArray(derleme_no)
+                ? { [Op.or]: derleme_no }
+                : { [Op.iLike]: `%${derleme_no}%` },
+            }
+          : null,
+        cd_no != null && cd_no !== undefined
+          ? {
+              cd_no: Array.isArray(cd_no)
+                ? { [Op.or]: cd_no }
+                : { [Op.iLike]: `%${cd_no}%` },
+            }
+          : null,
+        userStatus === "user"
+          ? { published: true }
+          : { published: { [Op.or]: [true, false] } },
+      ],
+    })
+      .then((data) => {
+        var resdata = null;
+
         data.forEach((item) => {
           if (
             item.profil_baslangic_x !== null &&
@@ -907,70 +1099,172 @@ exports.findAllGeo = (req, res) => {
 
         resdata = { resPoints: resPoints, resLines: resLines };
         res.send(resdata);
-      } else {
-        var arr = [];
-        data.forEach((item) => {
-          delete item.dataValues.id;
-          delete item.dataValues.createdAt;
-          delete item.dataValues.updatedAt;
-          delete item.dataValues.editorname;
-          delete item.dataValues.published;
-          delete item.dataValues.lat;
-          delete item.dataValues.lon;
-          arr.push(item.dataValues);
+      })
+      .catch((err) => {
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while retrieving tutorials.",
         });
-        const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet("Sheet 1");
-        // Generate columns dynamically based on the keys in the first data object
-        const firstDataObject = arr[0];
-        const columns = Object.keys(firstDataObject).map((key) => ({
-          header: key,
-          key,
-          width: 20, // You can set a default width or adjust it as needed
-        }));
-
-        // Set the columns in the worksheet
-        worksheet.columns = columns;
-        // Convert 'arr' to an array of arrays where each inner array represents a row
-        const rows = arr.map((row) => Object.values(row));
-
-        // Add the data rows in a batch
-        worksheet.addRows(rows);
-
-        // Create a write stream to save the XLSX file
-        const stream = fs.createWriteStream("export.xlsx");
-
-        // Write the workbook to the stream
-        workbook.xlsx
-          .write(stream)
-          .then(() => {
-            // Close the write stream
-            stream.end();
-
-            // Now, create a read stream for the saved file and pipe it to the response
-            const readStream = fs.createReadStream("export.xlsx");
-            res.setHeader(
-              "Content-Type",
-              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            );
-            res.setHeader(
-              "Content-Disposition",
-              "attachment; filename=export.xlsx"
-            );
-            readStream.pipe(res);
-          })
-          .catch((error) => {
-            console.error("Error writing XLSX file:", error);
-            res.status(500).send("Internal Server Error");
-          });
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving tutorials.",
       });
-    });
+  } else {
+    const generateExcelFile = async (res) => {
+      const options = {
+        filename: "export.xlsx",
+        useStyles: true,
+        useSharedStrings: true,
+      };
+      const workbook = new ExcelJS.stream.xlsx.WorkbookWriter(options);
+      const worksheet = workbook.addWorksheet("Sheet 1");
+
+      // Add headers
+      // const headers = ["Column1", "Column2", "Column3"]; // Replace with your actual column names
+      // worksheet.addRow(headers);
+      // Add headers
+      const queryOptions = {
+        raw: true,
+        attributes: {
+          exclude: [
+            "id",
+            "createdAt",
+            "updatedAt",
+            "editorname",
+            "published",
+            "lat",
+            "lon",
+          ],
+        },
+        where: [
+          locationCondition,
+          yontem
+            ? {
+                [Op.or]: [
+                  { yontem: { [Op.or]: yontem } },
+                  { alt_yontem: { [Op.or]: yontem } },
+                ],
+              }
+            : null,
+          calisma_amaci !== null && calisma_amaci !== undefined
+            ? //check if array or not
+
+              {
+                calisma_amaci: Array.isArray(calisma_amaci)
+                  ? {
+                      [Op.or]: calisma_amaci,
+                    }
+                  : { [Op.iLike]: `%${calisma_amaci}%` },
+              }
+            : null,
+          calisma_tarihi !== null && calisma_tarihi !== undefined
+            ? {
+                calisma_tarihi: Array.isArray(calisma_tarihi)
+                  ? {
+                      [Op.or]: calisma_tarihi.map((value) => ({
+                        [Op.iRegexp]: `.*${value}.*`,
+                      })),
+                    }
+                  : {
+                      [Op.iRegexp]: `.*${calisma_tarihi}.*`,
+                    },
+              }
+            : null,
+
+          proje_kodu !== null && proje_kodu !== undefined
+            ? {
+                proje_kodu: Array.isArray(proje_kodu)
+                  ? { [Op.or]: proje_kodu }
+                  : { [Op.iLike]: `%${proje_kodu}%` },
+              }
+            : null,
+          kuyu_arsiv_no !== null && kuyu_arsiv_no !== undefined
+            ? {
+                kuyu_arsiv_no: Array.isArray(kuyu_arsiv_no)
+                  ? { [Op.or]: kuyu_arsiv_no }
+                  : { [Op.iLike]: `%${kuyu_arsiv_no}%` },
+              }
+            : null,
+          jeofizik_arsiv_no !== null && jeofizik_arsiv_no !== undefined
+            ? {
+                jeofizik_arsiv_no: Array.isArray(jeofizik_arsiv_no)
+                  ? { [Op.or]: jeofizik_arsiv_no }
+                  : { [Op.iLike]: `%${jeofizik_arsiv_no}%` },
+              }
+            : null,
+          derleme_no !== null && derleme_no !== undefined
+            ? {
+                derleme_no: Array.isArray(derleme_no)
+                  ? { [Op.or]: derleme_no }
+                  : { [Op.iLike]: `%${derleme_no}%` },
+              }
+            : null,
+          cd_no != null && cd_no !== undefined
+            ? {
+                cd_no: Array.isArray(cd_no)
+                  ? { [Op.or]: cd_no }
+                  : { [Op.iLike]: `%${cd_no}%` },
+              }
+            : null,
+          userStatus === "user"
+            ? { published: true }
+            : { published: { [Op.or]: [true, false] } },
+        ],
+      };
+
+      const totalCount = await Tutorial.count(queryOptions);
+
+      queryOptions.limit = 10000; // Adjust the batch size based on your needs
+      let offset = 0;
+      const fetchAndProcessData = async () => {
+        const rows = await Tutorial.findAll({
+          ...queryOptions,
+          offset,
+        });
+
+        if (offset === 0 && rows.length > 0) {
+          // Extract headers from the first object in the fetched data
+          const headers = Object.keys(rows[0]);
+          // Add headers to the worksheet
+          worksheet.addRow(headers).commit();
+        }
+
+        // Process rows
+        rows.forEach((row) => {
+          worksheet.addRow(Object.values(row)).commit();
+        });
+
+        offset += queryOptions.limit;
+
+        if (offset < totalCount) {
+          // Continue fetching data in batches
+          process.nextTick(fetchAndProcessData);
+        } else {
+          // All data processed, proceed to write the file
+
+          workbook
+            .commit()
+            .then(() => {
+              const readStream = fs.createReadStream("export.xlsx");
+              res.setHeader(
+                "Content-Type",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              );
+              res.setHeader(
+                "Content-Disposition",
+                "attachment; filename=export.xlsx"
+              );
+              readStream.pipe(res);
+            })
+            .catch((error) => {
+              console.error("Error writing XLSX file:", error);
+              res.status(500).send("Internal Server Error");
+            });
+        }
+      };
+
+      // Start fetching and processing data
+      fetchAndProcessData();
+    };
+    generateExcelFile(res);
+  }
 };
 // Find a single Tutorial with an id
 exports.findOne = (req, res) => {
@@ -1048,9 +1342,10 @@ exports.delete = (req, res) => {
 exports.distinct = (req, res) => {
   // Assuming 'columns' is an array of column names you want to retrieve distinct values for
   const distinctValues = {};
-  console.log(req.query);
   // Assuming 'columns' is an array of column names you want to retrieve distinct values for
   const columns = req.query.column;
+  const il = req.query.il;
+  const ilce = req.query.ilce;
   const userStatus = req.query.userStatus;
   const yontem = req.query.yontem;
   const calisma_amaci = req.query.calisma_amaci;
@@ -1060,6 +1355,57 @@ exports.distinct = (req, res) => {
   const jeofizik_arsiv_no = req.query.jeofizik_arsiv_no;
   const derleme_no = req.query.derleme_no;
   const cd_no = req.query.cd_no;
+  var geojson = req.query.geojson;
+  var locationCondition = null;
+
+  if (il !== null && il !== undefined) {
+    var ilArray = illergeojson.features.filter(
+      (item) => item.properties.name.toLowerCase() == il.toLowerCase()
+    );
+    locationCondition = Tutorial.sequelize.where(
+      Tutorial.sequelize.fn(
+        "ST_Contains",
+
+        Tutorial.sequelize.fn(
+          "ST_GeomFromGeoJSON",
+          JSON.stringify(ilArray[0].geometry)
+        ),
+        Tutorial.sequelize.col("location")
+      ),
+      true
+    );
+  }
+  if (ilce !== null && ilce !== undefined) {
+    var ilceArray = ilceler.features.filter(
+      (item) => item.properties.Id == ilce
+    );
+    locationCondition = Tutorial.sequelize.where(
+      Tutorial.sequelize.fn(
+        "ST_Contains",
+
+        Tutorial.sequelize.fn(
+          "ST_GeomFromGeoJSON",
+          JSON.stringify(ilceArray[0].geometry)
+        ),
+        Tutorial.sequelize.col("location")
+      ),
+      true
+    );
+  }
+  if (geojson) {
+    locationCondition = Tutorial.sequelize.where(
+      Tutorial.sequelize.fn(
+        "ST_Contains",
+
+        Tutorial.sequelize.fn(
+          "ST_GeomFromGeoJSON",
+          '{"type":"Polygon","coordinates":[[' + geojson + "]]}"
+        ),
+        Tutorial.sequelize.col("location")
+      ),
+      true
+    );
+  }
   const queryWhere = [
     yontem
       ? {
@@ -1133,7 +1479,10 @@ exports.distinct = (req, res) => {
       ? { published: true }
       : { published: { [Op.or]: [true, false] } },
   ];
-
+  //if locationCondition is not null, add it to queryWhere
+  if (locationCondition !== null) {
+    queryWhere.unshift(locationCondition);
+  }
   const distinctPromises = columns.map((column) => {
     return Tutorial.findAll({
       attributes: [
