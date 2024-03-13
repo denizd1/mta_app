@@ -1,21 +1,16 @@
 const db = require("../models");
-const fs = require("fs");
 const Tutorial = db.tutorials;
 const citiesLatLongjson = require("../cities_of_turkey.json");
-const readXlsxFile = require("read-excel-file/node");
+const { Workbook } = require("exceljs");
+const fs = require("fs");
 const utmObj = require("utm-latlng");
 const centerofmass = require("@turf/center-of-mass");
-const booleanPointInPolygon = require("@turf/boolean-point-in-polygon");
-const booleanIntersects = require("@turf/boolean-intersects");
-const intersection = require("@turf/intersect");
-const turfpolygon = require("turf-polygon");
-const turfmultiPolygon = require("turf-multipolygon");
 const turflinestring = require("turf-linestring");
-var pafta25000 = JSON.parse(fs.readFileSync("pafta25000.geojson"));
-var pafta100000 = JSON.parse(fs.readFileSync("pafta100000.geojson"));
-var pafta500000 = JSON.parse(fs.readFileSync("pafta500000.geojson"));
-var cities = JSON.parse(fs.readFileSync("tr-cities-utf8.geojson"));
-var districts = JSON.parse(fs.readFileSync("tr_ilce.geojson"));
+const {
+  checkPointInPolygon,
+  intersectionCheck,
+  intersectionCheckLine,
+} = require("./coordfinder.js");
 
 const fileHeader = [
   "nokta_adi",
@@ -100,221 +95,69 @@ const upload = async (req, res) => {
   try {
     if (req.file == undefined) {
       return res.status(400).json({
-        message: "File exists or empty",
+        message: "File does not exist or is empty",
       });
     }
-    let path = __basedir + "/app/uploads/" + req.file.filename;
 
-    readXlsxFile(path, { sheet: 2 })
-      .then((rows) => {
-        // skip header
-        rows.shift();
+    const workbook = new Workbook();
+    const readStream = fs.createReadStream(req.file.path);
 
-        let tutorials = [];
+    const tutorials = []; // Array to hold tutorial data
 
-        rows.forEach((row) => {
-          tutorials.push(importData(row, req.body.user));
-        });
+    readStream.on("error", (error) => {
+      console.error("Stream error:", error);
+      res.status(500).json({
+        message: "Some error occurred while reading the file.",
+        error: error.message || error,
+      });
+    });
 
-        Tutorial.bulkCreate(tutorials)
-          .then((data) => {
-            res.status(200).json({
-              message: "Successfully created",
-              data: data,
-            });
-          })
-          .catch((err) => {
-            res.status(500).json({
-              message:
-                err.message ||
-                "Some error occurred while creating the Tutorial.",
-            });
+    workbook.xlsx
+      .read(readStream)
+      .then(() => {
+        const sheet = workbook.getWorksheet(2); // Get the second sheet
+
+        // Get the header row to use as keys
+        const headerRow = sheet.getRow(1);
+        const headers = headerRow.values.slice(1); // Assuming the first column is skipped
+
+        // Iterate over each row (starting from the second row)
+        for (let i = 2; i <= sheet.rowCount; i++) {
+          const row = sheet.getRow(i);
+          const rowData = {};
+
+          // Construct an object for the current row using headers as keys
+          headers.forEach((header, index) => {
+            rowData[header] = row.getCell(index + 1).value; // Assuming the first column is skipped
           });
+
+          // Push the row data into the tutorials array
+          tutorials.push(importData(rowData, req.body.user));
+        }
+
+        return Promise.all(tutorials); // Wait for all tutorial imports to complete
       })
-      .catch((err) => {
+      .then(async () => {
+        const createdTutorials = await Tutorial.bulkCreate(tutorials); // Bulk create tutorials
+        res.status(200).json({
+          message: `Successfully created ${createdTutorials.length} tutorials`,
+          data: createdTutorials,
+        });
+      })
+      .catch((error) => {
+        console.error("Error importing data:", error);
         res.status(500).json({
-          message:
-            err.message || "Some error occurred while creating the Tutorial.",
+          message: "Some error occurred while creating the Tutorial.",
+          error: error.message || error,
         });
       });
-  } catch (e) {
-    res.status(500).send({
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({
       message: "Could not upload the file: " + req.file.originalname,
+      error: error.message || error,
     });
   }
-};
-//check if point is in polygon. If yes then return yirmibes, yuz, besyuz, il, ilce
-const checkPointInPolygon = (lat, lon) => {
-  const isInside25 = pafta25000.features.find((polygon) =>
-    booleanPointInPolygon.default([lat, lon], polygon.geometry)
-  );
-  const isInside100 = pafta100000.features.find((polygon) =>
-    booleanPointInPolygon.default([lat, lon], polygon.geometry)
-  );
-  const isInside500 = pafta500000.features.find((polygon) =>
-    booleanPointInPolygon.default([lat, lon], polygon.geometry)
-  );
-  const isInsideCity = cities.features.find((polygon) =>
-    booleanPointInPolygon.default([lat, lon], polygon.geometry)
-  );
-  const isInsideDistrict = districts.features.find((polygon) =>
-    booleanPointInPolygon.default([lat, lon], polygon.geometry)
-  );
-
-  var thisyirmibes = isInside25.properties.STD_ID1.toUpperCase();
-  var thisyuz = isInside100.properties.STD_ID1;
-  var thisbesyuz = isInside500.properties.name;
-  var thisil =
-    isInsideCity.properties.name.charAt(0) +
-    isInsideCity.properties.name.substring(1).toLocaleLowerCase("tr");
-  var thisilce =
-    isInsideDistrict.properties.STD_ID1.charAt(0) +
-    isInsideDistrict.properties.STD_ID1.substring(1).toLocaleLowerCase("tr");
-
-  return {
-    yirmibes: thisyirmibes,
-    yuz: thisyuz,
-    besyuz: thisbesyuz,
-    il: thisil,
-    ilce: thisilce,
-  };
-};
-//check if polygon intersects with other polygons. If yes then return yirmibes, yuz, besyuz, il, ilce
-const intersectionCheck = (inputpoly) => {
-  var pafta25list = [];
-  var pafta100list = [];
-  var pafta500list = [];
-  var citylist = [];
-  var districtlist = [];
-
-  pafta25000.features.forEach((polygon) => {
-    if (
-      intersection.default(
-        turfpolygon(polygon.geometry.coordinates),
-        turfpolygon(inputpoly.features[0].geometry.coordinates)
-      )
-    ) {
-      pafta25list.push(polygon.properties.STD_ID1.toUpperCase());
-    }
-  });
-  pafta100000.features.forEach((polygon) => {
-    if (
-      intersection.default(
-        turfpolygon(polygon.geometry.coordinates),
-        turfpolygon(inputpoly.features[0].geometry.coordinates)
-      )
-    ) {
-      pafta100list.push(polygon.properties.STD_ID1);
-    }
-  });
-  pafta500000.features.forEach((polygon) => {
-    if (
-      intersection.default(
-        turfpolygon(polygon.geometry.coordinates),
-        turfpolygon(inputpoly.features[0].geometry.coordinates)
-      )
-    ) {
-      pafta500list.push(polygon.properties.STD_ID1);
-    }
-  });
-  cities.features.forEach((polygon) => {
-    if (
-      intersection.default(
-        turfmultiPolygon(polygon.geometry.coordinates),
-        turfpolygon(inputpoly.features[0].geometry.coordinates)
-      )
-    ) {
-      citylist.push(
-        polygon.properties.name.charAt(0) +
-          polygon.properties.name.substring(1).toLocaleLowerCase("tr")
-      );
-    }
-  });
-  districts.features.forEach((polygon) => {
-    if (
-      intersection.default(
-        turfmultiPolygon(polygon.geometry.coordinates),
-        turfpolygon(inputpoly.features[0].geometry.coordinates)
-      )
-    ) {
-      districtlist.push(
-        polygon.properties.STD_ID1.charAt(0) +
-          polygon.properties.STD_ID1.substring(1).toLocaleLowerCase("tr")
-      );
-    }
-  });
-
-  return {
-    yirmibes: pafta25list,
-    yuz: pafta100list,
-    besyuz: pafta500list,
-    il: citylist,
-    ilce: districtlist,
-  };
-};
-//check if line intersects with polygon. If yes then return yirmibes, yuz, besyuz, il, ilce
-const intersectionCheckLine = (line) => {
-  var pafta25list = [];
-  var pafta100list = [];
-  var pafta500list = [];
-  var citylist = [];
-  var districtlist = [];
-
-  pafta25000.features.forEach((polygon) => {
-    if (
-      booleanIntersects.default(turfpolygon(polygon.geometry.coordinates), line)
-    ) {
-      pafta25list.push(polygon.properties.STD_ID1.toUpperCase());
-    }
-  });
-  pafta100000.features.forEach((polygon) => {
-    if (
-      booleanIntersects.default(turfpolygon(polygon.geometry.coordinates), line)
-    ) {
-      pafta100list.push(polygon.properties.STD_ID1);
-    }
-  });
-  pafta500000.features.forEach((polygon) => {
-    if (
-      booleanIntersects.default(turfpolygon(polygon.geometry.coordinates), line)
-    ) {
-      pafta500list.push(polygon.properties.STD_ID1);
-    }
-  });
-  cities.features.forEach((polygon) => {
-    if (
-      booleanIntersects.default(
-        turfmultiPolygon(polygon.geometry.coordinates),
-        line
-      )
-    ) {
-      citylist.push(
-        polygon.properties.name.charAt(0) +
-          polygon.properties.name.substring(1).toLocaleLowerCase("tr")
-      );
-    }
-  });
-  districts.features.forEach((polygon) => {
-    if (
-      booleanIntersects.default(
-        turfmultiPolygon(polygon.geometry.coordinates),
-        line
-      )
-    ) {
-      districtlist.push(
-        polygon.properties.STD_ID1.charAt(0) +
-          polygon.properties.STD_ID1.substring(1).toLocaleLowerCase("tr")
-      );
-    }
-  });
-
-  return {
-    yirmibes: pafta25list,
-    yuz: pafta100list,
-    besyuz: pafta500list,
-    il: citylist,
-    ilce: districtlist,
-  };
 };
 
 const importData = (element, user) => {
@@ -334,6 +177,7 @@ const importData = (element, user) => {
       data[fileHeader[index]] = val; // key - value
     }
   });
+
   //if data["zone"] contains "," then split and convert to number, else convert to number
   if (data["zone"] === null || data["zone"] === undefined) {
     throw new Error("Zone bilgisini kontrol ediniz!");
@@ -525,7 +369,6 @@ const importData = (element, user) => {
     data["besyuzbin"] = check.besyuz.join(", ");
     data["il"] = check.il.join(", ");
     data["ilce"] = check.ilce.join(", ");
-    1;
 
     var centerOfMass = centerofmass.default(geoJson);
     data["lat"] = centerOfMass.geometry.coordinates[0];

@@ -3,9 +3,16 @@ const Tutorial = db.tutorials;
 const Sequelize = db.Sequelize;
 const Op = db.Sequelize.Op;
 const _ = require("lodash");
-const utmObj = require("utm-latlng");
 const fs = require("fs");
 const ExcelJS = require("exceljs");
+const turflinestring = require("turf-linestring");
+const utmObj = require("utm-latlng");
+
+const {
+  checkPointInPolygon,
+  intersectionCheck,
+  intersectionCheckLine,
+} = require("./coordfinder.js");
 
 ///import utm-latlng
 const geojsonobj = require("geojson");
@@ -13,6 +20,33 @@ const geojsonobj = require("geojson");
 //read tr-cities-utf8.geojson geojson file
 const illergeojson = JSON.parse(fs.readFileSync("tr-cities-utf8.geojson"));
 const ilceler = JSON.parse(fs.readFileSync("tr_ilce.geojson"));
+
+const converter = (x, y, zone, datum) => {
+  if (
+    x !== null &&
+    x !== undefined &&
+    y !== null &&
+    y !== undefined &&
+    zone !== null &&
+    zone !== undefined &&
+    datum !== null &&
+    datum !== undefined
+  ) {
+    var utm = null;
+    if (datum === "WGS_84") {
+      utm = new utmObj("WGS 84");
+    } else if (datum === "ED_50") {
+      utm = new utmObj("ED50");
+    } else {
+      throw new Error("Datum bilgisini kontrol ediniz!");
+    }
+    var point = utm.convertUtmToLatLng(x, y, zone, "N");
+
+    return point;
+  } else {
+    throw new Error("Koordinat bilgilerini kontrol ediniz.");
+  }
+};
 
 const getPagination = (page, size) => {
   const limit = size ? +size : 3;
@@ -1287,8 +1321,108 @@ exports.update = (req, res) => {
   var fields = Object.keys(req.body);
   let forDeletion = ["id"];
   fields = fields.filter((item) => !forDeletion.includes(item));
+  if (req.body["x"] !== null && req.body["y"] !== null) {
+    var check = checkPointInPolygon(req.body["lat"], req.body["lon"]);
+    req.body["besyuzbin"] = check.besyuz;
+    req.body["yuzbin"] = check.yuz;
+    req.body["yirmibesbin"] = check.yirmibes;
+    req.body["il"] = check.il;
+    req.body["ilce"] = check.ilce;
+  }
+  if (
+    req.body["profil_baslangic_x"] !== null &&
+    req.body["profil_baslangic_y"] !== null &&
+    req.body["profil_bitis_x"] !== null &&
+    req.body["profil_bitis_y"] !== null
+  ) {
+    var polyLineStart = converter(
+      req.body["profil_baslangic_x"],
+      req.body["profil_baslangic_y"],
+      req.body["zone"].length > 1 ? req.body["zone"][0] : req.body["zone"][0],
+      req.body["datum"]
+    );
+    var polyLineEnd = converter(
+      req.body["profil_bitis_x"],
+      req.body["profil_bitis_y"],
+      req.body["zone"].length > 1 ? req.body["zone"][1] : req.body["zone"][0],
+      req.body["datum"]
+    );
+    //make a line from start to end
+    var line = turflinestring([
+      [polyLineStart.lng, polyLineStart.lat],
+      [polyLineEnd.lng, polyLineEnd.lat],
+    ]);
+    var check = intersectionCheckLine(line);
+    req.body["yirmibesbin"] = check.yirmibes.join(", ");
+    req.body["yuzbin"] = check.yuz.join(", ");
+    req.body["besyuzbin"] = check.besyuz.join(", ");
+    req.body["il"] = check.il.join(", ");
+    req.body["ilce"] = check.ilce.join(", ");
+  }
+  if (
+    req.body["a_1"] !== null &&
+    req.body["a_2"] !== null &&
+    req.body["a_3"] !== null &&
+    req.body["a_4"] !== null
+  ) {
+    var corners = [
+      req.body["a_1"],
+      req.body["a_2"],
+      req.body["a_3"],
+      req.body["a_4"],
+    ]; //typeof string
+    var coordinates = [];
 
-  Tutorial.update(req.autosan.body, {
+    //need to convert string to number then convert utm to latlng
+    for (let i = 0; i < corners.length; i++) {
+      var corner = corners[i];
+      var cornerCoordinates = corner.split(",");
+      var x = parseFloat(cornerCoordinates[0]);
+      var y = parseFloat(cornerCoordinates[1]);
+
+      var cornerPoint = converter(
+        x,
+        y,
+        req.body["zone"].length > 1 ? req.body["zone"][i] : req.body["zone"][0],
+        req.body["datum"]
+      );
+      coordinates.push([cornerPoint.lng, cornerPoint.lat]);
+    }
+
+    var close = converter(
+      parseFloat(corners[0].split(",")[0]),
+      parseFloat(corners[0].split(",")[1]),
+      req.body["zone"].length > 1 ? req.body["zone"][0] : req.body["zone"][0],
+      req.body["datum"]
+    );
+    coordinates.push([parseFloat(close.lng), parseFloat(close.lat)]);
+    var geoJson = {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          properties: {
+            mytag: "datdat",
+            name: "datdat",
+            tessellate: true,
+          },
+          geometry: {
+            type: "Polygon",
+            coordinates: [coordinates],
+          },
+        },
+      ],
+    };
+    var check = intersectionCheck(geoJson);
+    //join array elements with whitespace and comma
+    req.body["yirmibesbin"] = check.yirmibes.join(", ");
+    req.body["yuzbin"] = check.yuz.join(", ");
+    req.body["besyuzbin"] = check.besyuz.join(", ");
+    req.body["il"] = check.il.join(", ");
+    req.body["ilce"] = check.ilce.join(", ");
+  }
+
+  Tutorial.update(req.body, {
     //exclude id when updating
     where: { id: id },
 
