@@ -34,6 +34,7 @@ const checkPointInPolygon = (lat, lon) => {
   var thisil =
     isInsideCity.properties.name.charAt(0) +
     isInsideCity.properties.name.substring(1).toLocaleLowerCase("tr");
+
   var thisilce =
     isInsideDistrict.properties.STD_ID1.charAt(0) +
     isInsideDistrict.properties.STD_ID1.substring(1).toLocaleLowerCase("tr");

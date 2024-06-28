@@ -198,37 +198,37 @@ const importData = (element, user) => {
   var latlon = null;
   var dummyCity = null;
   var thisCity = null;
-  if (
-    data["calisma_amaci"] !== "TÜRKİYE GENELİ HAVADAN JEOFİZİK ARAŞTIRMALAR"
-  ) {
-    if (data["il"] === null || data["il"] === undefined) {
-      throw new Error("İl alanını kontrol ediniz.");
-    } else {
-      if (data["il"] !== null && data["il"] !== undefined) {
-        if (data["il"].includes(",")) {
-          dummyCity = data["il"].split(",")[0];
-          thisCity = citiesLatLongjson.filter(
-            (city) => city.il == dummyCity.trim()
-          )[0];
-        } else {
-          dummyCity = data["il"];
-          thisCity = citiesLatLongjson.filter(
-            (city) => city.il == dummyCity.trim()
-          )[0];
-        }
-        data["lat"] = parseFloat(thisCity.longitude);
-        data["lon"] = parseFloat(thisCity.latitude);
-      } else if (
-        data["a_1"] === null &&
-        data["a_2"] === null &&
-        data["a_3"] === null &&
-        data["a_4"] === null
-      ) {
-        //throw error to async upload function
-        throw new Error("İl alanını kontrol ediniz.");
-      }
-    }
-  }
+  // if (
+  //   data["calisma_amaci"] !== "TÜRKİYE GENELİ HAVADAN JEOFİZİK ARAŞTIRMALAR"
+  // ) {
+  //   if (data["il"] === null || data["il"] === undefined) {
+  //     throw new Error("İl alanını kontrol ediniz.");
+  //   } else {
+  //     if (data["il"] !== null && data["il"] !== undefined) {
+  //       if (data["il"].includes(",")) {
+  //         dummyCity = data["il"].split(",")[0];
+  //         thisCity = citiesLatLongjson.filter(
+  //           (city) => city.il == dummyCity.trim()
+  //         )[0];
+  //       } else {
+  //         dummyCity = data["il"];
+  //         thisCity = citiesLatLongjson.filter(
+  //           (city) => city.il == dummyCity.trim()
+  //         )[0];
+  //       }
+  //       data["lat"] = parseFloat(thisCity.longitude);
+  //       data["lon"] = parseFloat(thisCity.latitude);
+  //     } else if (
+  //       data["a_1"] === null &&
+  //       data["a_2"] === null &&
+  //       data["a_3"] === null &&
+  //       data["a_4"] === null
+  //     ) {
+  //       //throw error to async upload function
+  //       throw new Error("İl alanını kontrol ediniz.");
+  //     }
+  //   }
+  // }
 
   if (data["x"] !== null && data["y"] !== null) {
     latlon = converter(data["x"], data["y"], data["zone"], data["datum"]);
